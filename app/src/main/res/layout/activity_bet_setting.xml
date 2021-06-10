@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="7dp"
+    tools:context=".BetSetting">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:text="내기 설정"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="7dp"
+        android:gravity="center"
+        android:text="내가 직접입력 또는 추천내기를 선택하세요"
+        android:textSize="15sp"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp">
+
+        <TextView
+            android:id="@+id/tvBetType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="내기를 선택해주세요"
+            android:paddingStart="20dp"
+            android:padding="5dp"
+
+            android:textSize="18sp"
+            android:textColor="@color/black"
+            android:background="@drawable/participant_number"/>
+
+        <ImageView
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginRight="10dp"
+            android:src="@drawable/check"
+            android:layout_alignParentEnd="true"/>
+
+
+    </RelativeLayout>
+
+    <GridLayout
+        android:id="@+id/gridLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:columnCount="2"
+        android:padding="15dp"
+        android:useDefaultMargins="true"
+        android:layout_gravity="center">
+
+    </GridLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:padding="7dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="취소"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:layout_weight="1"
+            android:background="@drawable/button_radius_border_cancel"/>
+
+        <Button
+            android:id="@+id/btnInputComplete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="입력완료"
+            android:textColor="#E91E63"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:layout_weight="1"
+            android:background="@drawable/button_radius_border_complete"/>
+
+    </LinearLayout>
+
+</LinearLayout>

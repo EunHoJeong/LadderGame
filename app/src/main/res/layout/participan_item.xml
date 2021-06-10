@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_marginTop="10dp"
+    android:layout_width="160dp"
+    android:ignoreGravity="@id/ibTextClear"
+    android:layout_height="wrap_content">
+
+
+
+    <TextView
+        android:id="@+id/tvNumber"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="3dp"
+        android:textSize="20sp"
+        android:gravity="center"
+        android:textColor="@color/white" />
+
+    <EditText
+        android:id="@+id/edtParticipantName"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:paddingStart="36dp"
+        android:padding="6dp"
+        android:maxLength="5"
+        android:maxLines="1"
+        android:background="@drawable/widget_border"/>
+
+    <ImageButton
+        android:id="@+id/ibTextClear"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_centerVertical="true"
+        android:layout_alignEnd="@id/edtParticipantName"
+        android:background="@drawable/clear" />
+
+
+</RelativeLayout>

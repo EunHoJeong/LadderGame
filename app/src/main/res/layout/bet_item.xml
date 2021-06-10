@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_marginTop="10dp"
+    android:layout_width="160dp"
+    android:ignoreGravity="@id/ibTextClear"
+    android:layout_height="wrap_content">
+
+
+    <EditText
+        android:id="@+id/edtBetName"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:paddingStart="36dp"
+        android:padding="6dp"
+        android:maxLength="5"
+        android:maxLines="1"
+        android:background="@drawable/widget_border"/>
+
+    <ImageButton
+        android:id="@+id/ibTextClear"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_centerVertical="true"
+        android:layout_alignEnd="@id/edtBetName"
+        android:background="@drawable/clear" />
+
+</RelativeLayout>
