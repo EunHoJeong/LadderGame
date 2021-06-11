@@ -25,6 +25,8 @@
         android:padding="6dp"
         android:maxLength="5"
         android:maxLines="1"
+        android:inputType="text"
+        android:imeOptions="actionNext"
         android:background="@drawable/widget_border"/>
 
     <ImageButton

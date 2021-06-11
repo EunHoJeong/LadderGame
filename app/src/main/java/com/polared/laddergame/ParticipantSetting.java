@@ -3,12 +3,19 @@ package com.polared.laddergame;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
@@ -23,6 +30,7 @@ import com.google.gson.Gson;
 public class ParticipantSetting extends AppCompatActivity {
     private static final int RESULT_PARTICIPANT = 100;
 
+    private LinearLayout mainLayout;
     private GridLayout gridLayout;
     private TextView tvCurrentHeadcount;
     private ImageButton ibMinusMember, ibPlusMember;
@@ -33,10 +41,20 @@ public class ParticipantSetting extends AppCompatActivity {
     private int participantNumber = 0;
 
 
+    @SuppressLint("WrongConstant")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_participant_setting);
+
+        View customView = LayoutInflater.from(this).inflate(R.layout.toolbar, null, false);
+        ((TextView)customView.findViewById(R.id.tvTitle)).setText("참여자 입력");
+        customView.setLayoutParams(new ActionBar.LayoutParams(
+                ActionBar.LayoutParams.MATCH_PARENT,
+                ActionBar.LayoutParams.MATCH_PARENT));
+
+        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        getSupportActionBar().setCustomView(customView);
 
         participantNumber = getIntent().getIntExtra("participantNumber", 2);
 
@@ -48,6 +66,8 @@ public class ParticipantSetting extends AppCompatActivity {
             createView(i);
         }
 
+        setLastEdtParticipantNameImeOption();
+
         jsonParticipantNames = getIntent().getStringExtra("jsonParticipantNames");
 
         if(jsonParticipantNames != null){
@@ -57,7 +77,15 @@ public class ParticipantSetting extends AppCompatActivity {
 
 
 
+
+
     }
+
+    private void setLastEdtParticipantNameImeOption() {
+        ((EditText)gridLayout.getChildAt(participantNumber-1).findViewById(R.id.edtParticipantName))
+                .setImeOptions(EditorInfo.IME_ACTION_DONE);
+    }
+
 
     private void jsonFromStringArray() {
         Gson gson = new Gson();
@@ -94,6 +122,7 @@ public class ParticipantSetting extends AppCompatActivity {
             ((EditText)gridLayout.getChildAt(i).findViewById(R.id.edtParticipantName))
                     .setText(participantNames[i]);
         }
+
     }
 
     private void setTvNumber(TextView tvNumber, int position) {
@@ -115,6 +144,19 @@ public class ParticipantSetting extends AppCompatActivity {
 
         registerBtnInputComplete();
 
+        registerMainLayout();
+
+    }
+
+    private void registerMainLayout() {
+        mainLayout.setOnClickListener(v -> {
+            if(getCurrentFocus() == null){
+                return;
+            }
+            InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            getCurrentFocus().clearFocus();
+        });
     }
 
     private void registerBtnInputComplete() {
@@ -158,6 +200,7 @@ public class ParticipantSetting extends AppCompatActivity {
             participantNumber++;
             tvCurrentHeadcount.setText("참여 " + participantNumber + "명");
             createView(participantNumber-1);
+            setLastEdtParticipantNameImeOption();
         });
     }
 
@@ -177,6 +220,7 @@ public class ParticipantSetting extends AppCompatActivity {
             participantNumber--;
             tvCurrentHeadcount.setText("참여 " + participantNumber + "명");
             gridLayout.removeViewAt(participantNumber);
+            setLastEdtParticipantNameImeOption();
 
 
         });
@@ -203,6 +247,7 @@ public class ParticipantSetting extends AppCompatActivity {
     }
 
     private void findViewByIdFunc() {
+        mainLayout = findViewById(R.id.mainLayout);
         gridLayout = findViewById(R.id.gridLayout);
 
         tvCurrentHeadcount = findViewById(R.id.tvCurrentHeadcount);
@@ -213,4 +258,7 @@ public class ParticipantSetting extends AppCompatActivity {
         btnCancel = findViewById(R.id.btnCancel);
         btnInputComplete = findViewById(R.id.btnInputComplete);
     }
+
+
+
 }

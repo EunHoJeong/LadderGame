@@ -6,7 +6,12 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -30,6 +35,11 @@ public class MainActivity extends AppCompatActivity {
 
 
     private int participantNumber = 4;
+    private int typePosition = 0;
+
+    private int[] colors = new int[]{R.color.my_pink, R.color.my_green, R.color.my_orange, R.color.my_indigo
+                                    , R.color.my_yellow, R.color.my_turquoise, R.color.my_purple, R.color.my_sky
+                                    , R.color.my_gray, R.color.my_red, R.color.my_brown, R.color.my_beige };
 
     private ActivityResultLauncher mStartForResult = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -42,44 +52,63 @@ public class MainActivity extends AppCompatActivity {
                         return ;
                     }
 
-                    int number = result.getData().getIntExtra("participantNumber", 4);
-
-                    if(number > participantNumber){
-                        for(int i = number-participantNumber+1; i < number; i++){
-                            createView(i);
-                        }
-                    }else{
-                        
-                    }
+                    int beforeNumber = participantNumber;
+                    participantNumber = result.getData().getIntExtra("participantNumber", 4);
 
                     if(result.getResultCode() == RESULT_PARTICIPANT){
 
-                        participantNumber = result.getData().getIntExtra("participantNumber", 4);
                         String jsonParticipantNames = result.getData().getStringExtra("jsonParticipantNames");
 
                         participantNames = jsonFromStringArray(jsonParticipantNames);
+
+                        setParticipantView(beforeNumber);
 
                         setParticipantName();
 
                     }else if(result.getResultCode() == RESULT_BET){
 
                         String jsonBetNames = result.getData().getStringExtra("jsonBetNames");
-
+                        typePosition = result.getData().getIntExtra("typePosition", 0);
                         betNames = jsonFromStringArray(jsonBetNames);
 
                         setBetName();
                     }
+
+
                 }
             });
 
+    private void setParticipantView(int number) {
+        if(participantNumber == number){
+            return;
+        }
+
+        if(participantNumber > number){
+            for(int i = number; i < participantNumber; i++){
+                createView(i);
+            }
+
+        }else{
+            number--;
+
+            for(int i = number; i >= participantNumber; i--){
+                ladderLayout.removeViewAt(i);
+            }
+
+        }
+    }
 
 
+    @SuppressLint("WrongConstant")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        getSupportActionBar().setCustomView(R.layout.toolbar);
 
         ladderLayout = findViewById(R.id.ladderLayout);
+
 
         participantInput = findViewById(R.id.participantInput);
 
@@ -91,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
             createView(i);
         }
 
+
     }
 
     private void createView(int position) {
@@ -100,9 +130,15 @@ public class MainActivity extends AppCompatActivity {
         TextView tvParticipantName = addView.findViewById(R.id.tvParticipantName);
         TextView tvBetName = addView.findViewById(R.id.tvBetName);
 
-        tvNumber.setText(""+(position+1));
-        tvParticipantName.setText("참여"+(position+1));
-        tvBetName.setText("내기"+(position+1));
+        String number = String.valueOf(position+1);
+        String participantName = "참여"+number;
+        String betName = "내기"+number;
+
+        tvNumber.setText(number);
+        tvParticipantName.setText(participantName);
+        tvBetName.setText(betName);
+
+        tvNumber.setBackgroundResource(colors[position]);
 
         ladderLayout.addView(addView);
     }
@@ -110,15 +146,15 @@ public class MainActivity extends AppCompatActivity {
     private void setBetName() {
 
         for(int i = 0; i < participantNumber; i++){
-            ((TextView) ladderLayout.getChildAt(i).findViewById(R.id.tvParticipantName))
-                    .setText(participantNames[i]);
+            ((TextView) ladderLayout.getChildAt(i).findViewById(R.id.tvBetName))
+                    .setText(betNames[i]);
         }
     }
 
     private void setParticipantName() {
         for(int i = 0; i < participantNumber; i++){
-            ((TextView) ladderLayout.getChildAt(i).findViewById(R.id.tvBetName))
-                    .setText(betNames[i]);
+            ((TextView) ladderLayout.getChildAt(i).findViewById(R.id.tvParticipantName))
+                    .setText(participantNames[i]);
         }
     }
 
@@ -143,11 +179,13 @@ public class MainActivity extends AppCompatActivity {
             if(betNames != null){
                 String jsonBetNames = stringArrayFromJson(betNames);
                 intent.putExtra("jsonBetNames", jsonBetNames);
+                intent.putExtra("typePosition", typePosition);
             }
 
             mStartForResult.launch(intent);
         });
     }
+
 
     private String stringArrayFromJson(String[] arrayData){
         Gson gson = new Gson();
@@ -159,4 +197,6 @@ public class MainActivity extends AppCompatActivity {
         Gson gson = new Gson();
         return gson.fromJson(jsonData, String[].class);
     }
+
+
 }
