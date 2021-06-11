@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -38,8 +39,8 @@ public class MainActivity extends AppCompatActivity {
     private int typePosition = 0;
 
     private int[] colors = new int[]{R.color.my_pink, R.color.my_green, R.color.my_orange, R.color.my_indigo
-                                    , R.color.my_yellow, R.color.my_turquoise, R.color.my_purple, R.color.my_sky
-                                    , R.color.my_gray, R.color.my_red, R.color.my_brown, R.color.my_beige };
+            , R.color.my_yellow, R.color.my_turquoise, R.color.my_purple, R.color.my_sky
+            , R.color.my_brown, R.color.my_gray, R.color.my_red, R.color.my_beige };
 
     private ActivityResultLauncher mStartForResult = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -113,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
         participantInput = findViewById(R.id.participantInput);
 
         modifyBet = findViewById(R.id.modifyBet);
+
 
         eventHandlerFunc();
 
