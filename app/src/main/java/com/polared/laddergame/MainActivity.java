@@ -17,9 +17,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -29,7 +31,10 @@ public class MainActivity extends AppCompatActivity {
     private static final int RESULT_BET = 200;
 
     private LinearLayout ladderLayout;
-    private Button participantInput, modifyBet;
+    private RelativeLayout relativeLayout;
+    private Button btnParticipantInput, btnModifyBet, btnStart;
+
+    private LadderCanvas ladderCanvas;
 
     private String[] participantNames;
     private String[] betNames;
@@ -37,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
 
     private int participantNumber = 4;
     private int typePosition = 0;
+
+    private boolean isStart;
 
     private int[] colors = new int[]{R.color.my_pink, R.color.my_green, R.color.my_orange, R.color.my_indigo
             , R.color.my_yellow, R.color.my_turquoise, R.color.my_purple, R.color.my_sky
@@ -65,6 +72,8 @@ public class MainActivity extends AppCompatActivity {
                         setParticipantView(beforeNumber);
 
                         setParticipantName();
+
+                        ladderCanvas.init(participantNumber);
 
                     }else if(result.getResultCode() == RESULT_BET){
 
@@ -108,12 +117,20 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setCustomView(R.layout.toolbar);
 
+        ladderCanvas = new LadderCanvas(this, participantNumber);
+
+
         ladderLayout = findViewById(R.id.ladderLayout);
+        relativeLayout = findViewById(R.id.relativeLayout);
 
 
-        participantInput = findViewById(R.id.participantInput);
 
-        modifyBet = findViewById(R.id.modifyBet);
+        relativeLayout.addView(ladderCanvas);
+
+
+        btnParticipantInput = findViewById(R.id.btnParticipantInput);
+        btnModifyBet = findViewById(R.id.btnModifyBet);
+        btnStart = findViewById(R.id.btnStart);
 
 
         eventHandlerFunc();
@@ -121,6 +138,8 @@ public class MainActivity extends AppCompatActivity {
         for(int i = 0; i < participantNumber; i++){
             createView(i);
         }
+
+
 
 
     }
@@ -137,6 +156,12 @@ public class MainActivity extends AppCompatActivity {
         String betName = "내기"+number;
 
         tvNumber.setText(number);
+
+        tvNumber.setOnClickListener(v -> {
+
+            ladderCanvas.invalidate();
+        });
+
         tvParticipantName.setText(participantName);
         tvBetName.setText(betName);
 
@@ -162,29 +187,70 @@ public class MainActivity extends AppCompatActivity {
 
     private void eventHandlerFunc() {
 
-        participantInput.setOnClickListener(v -> {
-            Intent intent = new Intent(this, ParticipantSetting.class);
-            intent.putExtra("participantNumber", participantNumber);
+        registerBtnParticipantInput();
 
-            if(participantNames != null){
-                String jsonParticipantNames = stringArrayFromJson(participantNames);
-                intent.putExtra("jsonParticipantNames", jsonParticipantNames);
-            }
+        registerBtnModifyBet();
 
-            mStartForResult.launch(intent);
+
+        btnStart.setOnClickListener(v -> {
+            isStart = true;
+            ladderCanvas.setIsStart(true);
+            ladderCanvas.invalidate();
+
+            btnStart.setVisibility(View.INVISIBLE);
+            btnModifyBet.setText("다시하기");
+            btnParticipantInput.setText("전체결과");
+
         });
+    }
 
-        modifyBet.setOnClickListener(v -> {
-            Intent intent = new Intent(this, BetSetting.class);
-            intent.putExtra("participantNumber", participantNumber);
+    private void registerBtnModifyBet() {
+        btnModifyBet.setOnClickListener(v -> {
+            if(isStart){
 
-            if(betNames != null){
-                String jsonBetNames = stringArrayFromJson(betNames);
-                intent.putExtra("jsonBetNames", jsonBetNames);
-                intent.putExtra("typePosition", typePosition);
+                isStart = false;
+                ladderCanvas.setIsStart(false);
+
+                ladderCanvas.invalidate();
+                btnStart.setVisibility(View.VISIBLE);
+                btnModifyBet.setText("내기 수정하기");
+                btnParticipantInput.setText("참여자 입력하기");
+
+
+            }else{
+
+                Intent intent = new Intent(this, BetSetting.class);
+                intent.putExtra("participantNumber", participantNumber);
+
+                if(betNames != null){
+                    String jsonBetNames = stringArrayFromJson(betNames);
+                    intent.putExtra("jsonBetNames", jsonBetNames);
+                    intent.putExtra("typePosition", typePosition);
+                }
+
+                mStartForResult.launch(intent);
+
             }
 
-            mStartForResult.launch(intent);
+        });
+    }
+
+    private void registerBtnParticipantInput() {
+        btnParticipantInput.setOnClickListener(v -> {
+            if(isStart){
+
+            }else{
+                Intent intent = new Intent(this, ParticipantSetting.class);
+                intent.putExtra("participantNumber", participantNumber);
+
+                if(participantNames != null){
+                    String jsonParticipantNames = stringArrayFromJson(participantNames);
+                    intent.putExtra("jsonParticipantNames", jsonParticipantNames);
+                }
+
+                mStartForResult.launch(intent);
+            }
+
         });
     }
 
@@ -199,6 +265,7 @@ public class MainActivity extends AppCompatActivity {
         Gson gson = new Gson();
         return gson.fromJson(jsonData, String[].class);
     }
+
 
 
 }
