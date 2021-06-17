@@ -8,10 +8,8 @@ import android.graphics.Path;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
-import android.widget.LinearLayout;
 
 import androidx.annotation.Nullable;
 
@@ -22,22 +20,42 @@ public class LadderCanvas extends View {
     private boolean isStart;
     private boolean isGo;
 
+    private int lineCount;
     private int lineNum;
+    private int heightNum;
 
+    private int startX;
+    private int startY;
+    private int stopX;
+    private int stopY;
     private int[] ladder;
     private int[] nextLadder;
+    private int[] ladderResult;
+
+    private Paint paint;
+    private Path path = new Path();
 
     private Random random;
 
     private ArrayList<LadderLine> list;
+    private ArrayList<DrawAnimationLocation> drawList;
+
+    private CallbackLadderResult callbackLadderResult;
+
+    boolean isAnimation;
 
 
 
 
-    public LadderCanvas(Context context, int lineNum) {
+
+
+
+    public LadderCanvas(Context context, int lineCount, CallbackLadderResult callbackLadderResult) {
         super(context);
-        this.lineNum = lineNum;
-        Log.d("Test", "LadderCanvas"+this.lineNum);
+        this.lineCount = lineCount;
+        this.callbackLadderResult = callbackLadderResult;
+        drawList = new ArrayList<>();
+        Log.d("Test", "LadderCanvas"+this.lineCount);
     }
 
     public LadderCanvas(Context context, @Nullable AttributeSet attrs) {
@@ -49,8 +67,16 @@ public class LadderCanvas extends View {
     }
 
     public void init(int position){
+        lineCount = position;
         invalidate();
+    }
+
+    public void goAnimation(int position){
         lineNum = position;
+        heightNum = 1;
+        startX = 135+((lineNum-1)*252);
+        startY = 350;
+        invalidate();
     }
 
     @Override
@@ -58,47 +84,40 @@ public class LadderCanvas extends View {
         super.onDraw(canvas);
         Log.d("Test", "onDraw");
 
+        paint = new Paint();
 
 
 
 
-        Paint paint = new Paint();
         paint.setColor(Color.GRAY);
         paint.setStrokeWidth(20);
 
         canvas.drawLine(135, 350, 135, 1650, paint);
 
-        for(int i = 1; i < lineNum; i++){
-
+        for (int i = 1; i < lineCount; i++) {
             canvas.drawLine(135+(i*252), 350, 135+(i*252), 1650, paint);
         }
 
-        if (isStart){
+        if (isStart) {
             random = new Random();
             createWidthLine();
 
+            drawWidthLine(canvas);
 
-                    for(int i = 0; i < lineNum-1; i++){
-                        for(int j = 0; j < 10; j++){
-                            int heightLine = list.get(i).location[j];
-                            if(heightLine == 0){
-                                continue;
-                            }
-                            int nextLine = list.get(i).nextLocation[j];
+            setLadderResult();
 
-                            int startX = 135+(i*252);
-                            int startY = 350+(j*130);
-                            int stopX = 135+((i+1)*252);
-                            int stopY = 350+(nextLine*130);
+            callbackLadderResult.relayLadderResult(ladderResult);
+            isStart = false;
 
-                            canvas.drawLine(startX, startY, stopX, stopY, paint);
-
-                        }
-                    }
+        }
 
 
+        if(isAnimation){
+            drawWidthLine(canvas);
 
+            paint.setColor(Color.RED);
 
+            animationLocation(canvas);
 
         }
 
@@ -106,7 +125,87 @@ public class LadderCanvas extends View {
 
     }
 
+    private void animationLocation(Canvas canvas){
+        for(int i = 0; i < drawList.size(); i++){
+            canvas.drawLine(drawList.get(i).getStartX()
+                    , drawList.get(i).getStartY()
+                    , drawList.get(i).getStopX()
+                    , drawList.get(i).getStopY(), paint);
+        }
 
+        if (list.get(lineNum).getNextLocation()[heightNum] != 0 && stopY > 480) {
+            heightNum = list.get(lineNum).getNextLocation()[heightNum];
+        }
+    }
+
+
+
+    private void setLadderResult() {
+        for (int i = 0; i < lineCount; i++) {
+            int line = i;
+
+            for(int j = 0; j < 10; j++){
+                if(i == 0) {
+                    Log.d("Test", "j = " + j);
+                }
+                int position = 1;
+                if(line == 0){
+                    position = 0;
+                }
+                int before = list.get(line-position).getNextLocation()[j];
+                int after = list.get(line).getNextLocation()[j];
+
+                if(i == 0) {
+                    Log.d("Test", "after = " + after + " before = " + before);
+                }
+
+                if (after != 0) {
+                    line++;
+                    j = after;
+                } else if (before != 0) {
+                    line--;
+                    j = getLine(line, before);
+                }
+                if(i == 0) {
+                    Log.d("Test", "line = " + line);
+                }
+            }//end of for
+
+            ladderResult[line] = i+1;
+        }
+    }
+
+    private void drawWidthLine(Canvas canvas) {
+        ladderResult = new int[lineCount];
+
+        for (int i = 0; i < lineCount -1; i++) {
+            for(int j = 0; j < 10; j++){
+                int heightLine = list.get(i).location[j];
+                if(heightLine == 0){
+                    continue;
+                }
+                int nextLine = list.get(i).nextLocation[j];
+
+                int startX = 135+(i*252);
+                int startY = 350+(j*130);
+                int stopX = 135+((i+1)*252);
+                int stopY = 350+(nextLine*130);
+
+                canvas.drawLine(startX, startY, stopX, stopY, paint);
+
+            }
+        }
+    }
+
+    private int getLine(int position, int before) {
+        int[] location = list.get(position).getNextLocation();
+        for(int i = 0; i < 10; i++){
+            if(location[i] == before){
+                return i;
+            }
+        }
+        return before;
+    }
 
     private void createWidthLine() {
         list = new ArrayList<>();
@@ -115,19 +214,19 @@ public class LadderCanvas extends View {
 
         LadderLine ladderLine;
 
-
-        for(int i = 0; i < lineNum-1; i++){
+        for(int i = 0; i < lineCount -1; i++){
             int ladderSize = 0;
             int position = 0;
             int count = 0;
-            if(i > 0){
+
+            if (i > 0) {
                 position = 1;
             }
 
             for(int j = 1; j < 9; j++){
 
                 boolean isCreate = random.nextBoolean();
-                if(isCreate && ladderSize >= j){
+                if(isCreate || ladderSize >= j){
 
                     continue;
                 }
@@ -141,7 +240,7 @@ public class LadderCanvas extends View {
                     continue;
                 }
 
-                if(random.nextInt(5) < 2){
+                if(random.nextInt(5) < 1){
                     ladder[j] = 1;
                     ladderSize = obliqueLine(j);
                     nextLadder[j] = ladderSize;
@@ -164,6 +263,8 @@ public class LadderCanvas extends View {
 
         }
 
+        list.add(new LadderLine(new int[10], new int[10]));
+
     }
 
     private void checkLineNum(int position, int ladderSize){
@@ -178,10 +279,11 @@ public class LadderCanvas extends View {
                 count++;
             }
         }
-        if(count < 1 ){
+        if(count < 2 ){
             for(int i = 0; i < 3; i++){
                 int randomNum = random.nextInt(8)+1;
-                if(hasLine(position,randomNum)){
+                if (ladderSize >= randomNum && ladderSize-2 <= randomNum
+                || hasLine(position,randomNum)) {
                     i--;
                     continue;
                 }
@@ -195,38 +297,19 @@ public class LadderCanvas extends View {
         if(ladderLine > 5 || list.size() == 0){
             return ladderLine;
         }
-        int line = ladderLine;
-        int randomNum = 0;
-        int i = 0;
-        while(i != 10){
-            i++;
 
-            randomNum = random.nextInt(3)+2;
-
-
-            line += randomNum;
-
-
-            if(line > 8){
-                line = ladderLine;
-                continue;
-            }
-
-
-            break;
-        }
-
-
-        return line;
+        return ladderLine+2;
     }
 
     private boolean hasLine(int position, int ladderLine) {
-        if(list.size() == 0){
+        if (list.size() == 0) {
             return false;
         }
+
         boolean hasLine = false;
-        for(int i = 0; i < 10; i++){
-            if(list.get(position).getNextLocation()[i] == ladderLine){
+
+        for (int i = 0; i < 10; i++) {
+            if (list.get(position).getNextLocation()[i] == ladderLine) {
                 hasLine = true;
 
                 break;
@@ -241,10 +324,14 @@ public class LadderCanvas extends View {
         this.isStart = isStart;
     }
 
+    public void setIsAnimation(boolean animation){
+        isAnimation = animation;
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        int width = lineNum * 252;
+        int width = lineCount * 252;
         int height = getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec);
 
         Log.d("Test", "onMeasure = " + width);
@@ -255,5 +342,8 @@ public class LadderCanvas extends View {
     }
 
 
+    public int[] getLadderResult() {
 
+        return ladderResult;
+    }
 }

@@ -23,6 +23,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private String[] participantNames;
     private String[] betNames;
 
+    private int[] ladderResult;
 
     private int participantNumber = 4;
     private int typePosition = 0;
@@ -117,7 +119,14 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setCustomView(R.layout.toolbar);
 
-        ladderCanvas = new LadderCanvas(this, participantNumber);
+        CallbackLadderResult callbackLadderResult = new CallbackLadderResult() {
+            @Override
+            public void relayLadderResult(int[] result) {
+                ladderResult = result;
+            }
+        };
+
+        ladderCanvas = new LadderCanvas(this, participantNumber, callbackLadderResult);
 
 
         ladderLayout = findViewById(R.id.ladderLayout);
@@ -158,8 +167,8 @@ public class MainActivity extends AppCompatActivity {
         tvNumber.setText(number);
 
         tvNumber.setOnClickListener(v -> {
-
-            ladderCanvas.invalidate();
+            ladderCanvas.setIsAnimation(true);
+            ladderCanvas.goAnimation(position);
         });
 
         tvParticipantName.setText(participantName);
@@ -193,15 +202,29 @@ public class MainActivity extends AppCompatActivity {
 
 
         btnStart.setOnClickListener(v -> {
+            registerTvBetName();
+
             isStart = true;
             ladderCanvas.setIsStart(true);
             ladderCanvas.invalidate();
+
 
             btnStart.setVisibility(View.INVISIBLE);
             btnModifyBet.setText("다시하기");
             btnParticipantInput.setText("전체결과");
 
+            ladderResult = ladderCanvas.getLadderResult();
+
         });
+    }
+
+    private void registerTvBetName() {
+        for(int i = 0; i < participantNumber; i++){
+            final int position = i;
+            ladderLayout.getChildAt(i).findViewById(R.id.tvBetName).setOnClickListener(v -> {
+                Toast.makeText(this, "참여"+ladderResult[position], Toast.LENGTH_SHORT).show();
+            });
+        }
     }
 
     private void registerBtnModifyBet() {
