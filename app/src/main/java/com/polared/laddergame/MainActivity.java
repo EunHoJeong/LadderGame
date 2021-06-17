@@ -232,9 +232,10 @@ public class MainActivity extends AppCompatActivity {
             if(isStart){
 
                 isStart = false;
-                ladderCanvas.setIsStart(false);
 
+                ladderCanvas.clearDraw();
                 ladderCanvas.invalidate();
+
                 btnStart.setVisibility(View.VISIBLE);
                 btnModifyBet.setText("내기 수정하기");
                 btnParticipantInput.setText("참여자 입력하기");

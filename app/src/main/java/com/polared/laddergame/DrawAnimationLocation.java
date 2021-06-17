@@ -3,10 +3,10 @@ package com.polared.laddergame;
 public class DrawAnimationLocation {
     private int startX;
     private int startY;
-    private int stopX;
-    private int stopY;
+    private float stopX;
+    private float stopY;
 
-    public DrawAnimationLocation(int startX, int startY, int stopX, int stopY) {
+    public DrawAnimationLocation(int startX, int startY, float stopX, float stopY) {
         this.startX = startX;
         this.startY = startY;
         this.stopX = stopX;
@@ -21,11 +21,11 @@ public class DrawAnimationLocation {
         return startY;
     }
 
-    public int getStopX() {
+    public float getStopX() {
         return stopX;
     }
 
-    public int getStopY() {
+    public float getStopY() {
         return stopY;
     }
 }
