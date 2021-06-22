@@ -205,9 +205,6 @@ public class MainActivity extends AppCompatActivity {
             registerTvBetName();
 
             isStart = true;
-            ladderCanvas.setIsStart(true);
-            ladderCanvas.invalidate();
-
 
             btnStart.setVisibility(View.INVISIBLE);
             btnModifyBet.setText("다시하기");
@@ -261,9 +258,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void registerBtnParticipantInput() {
         btnParticipantInput.setOnClickListener(v -> {
-            if(isStart){
-
-            }else{
+            if (isStart) {
+                ladderCanvas.allLadderResult();
+            } else {
                 Intent intent = new Intent(this, ParticipantSetting.class);
                 intent.putExtra("participantNumber", participantNumber);
 
