@@ -35,7 +35,7 @@ public class BetSetting extends AppCompatActivity {
     private TextView tvBetType;
     private Button btnCancel, btnInputComplete;
 
-    private final String[] betType = new String[]{"내기를 선택해주세요", "꽝뽑기", "당첨뽑기", "오늘 뭐 먹지"};
+    private String[] betType;
 
     private String[] betNames;
 
@@ -51,13 +51,17 @@ public class BetSetting extends AppCompatActivity {
         setContentView(R.layout.activity_bet_setting);
 
         View customView = LayoutInflater.from(this).inflate(R.layout.toolbar, null, false);
-        ((TextView)customView.findViewById(R.id.tvTitle)).setText("내기 입력");
+        ((TextView)customView.findViewById(R.id.tvTitle)).setText(getString(R.string.enter_bet));
         customView.setLayoutParams(new ActionBar.LayoutParams(
                         ActionBar.LayoutParams.MATCH_PARENT,
                         ActionBar.LayoutParams.MATCH_PARENT));
 
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setCustomView(customView);
+
+        betType = new String[]{getString(R.string.choose_a_bet)
+                , getString(R.string.draw_a_blank), getString(R.string.drawing_a_prize)
+                , getString(R.string.what_should_i_eat_today)};
 
         participantNumber = getIntent().getIntExtra("participantNumber", 2);
         typePosition = getIntent().getIntExtra("typePosition", 0);
@@ -106,10 +110,10 @@ public class BetSetting extends AppCompatActivity {
 
         ImageButton ibTextClear = addView.findViewById(R.id.ibTextClear);
 
-        edtBetName.setText("내기"+(position+1));
+        edtBetName.setText(getString(R.string.bet)+(position+1));
 
         ibTextClear.setOnClickListener(v -> {
-            edtBetName.setText("");
+            edtBetName.setText(R.string.blank);
         });
 
         gridLayout.addView(addView);
@@ -256,10 +260,11 @@ public class BetSetting extends AppCompatActivity {
     }
 
     private void nameForBetWhatEatToday() {
-        String[] foods = new String[]{"짜장", "찌개", "돈까스", "짬뽕"
-                                    , "국수", "파스타", "햄버거", "정식"
-                                    , "회", "피자", "떡볶이", "고기", "라면"
-                                    , "간계밥", "김치볶음밥", "굶기"};
+        String[] foods = new String[]{ getString(R.string.food_black_soybean_sauce_noodle), getString(R.string.food_stew), getString(R.string.food_pork_cutlet)
+                , getString(R.string.food_jjambbong), getString(R.string.food_noodle), getString(R.string.food_pasta), getString(R.string.food_hamburger)
+                , getString(R.string.food_korean_cuisine), getString(R.string.food_raw_fish), getString(R.string.food_pizza), getString(R.string.food_stir_fried_rice_cake)
+                , getString(R.string.food_meat), getString(R.string.food_ramen), getString(R.string.food_rice_with_soy_sauce_egg), getString(R.string.food_kimchi_fried_rice)
+                , getString(R.string.food_starving)};
 
         boolean[] isUsed = new boolean[foods.length];
 
@@ -287,11 +292,11 @@ public class BetSetting extends AppCompatActivity {
         String message = null;
 
         if(which == DRAW_BLANK){
-            draw = "꽝!!";
-            message = "통과";
+            draw = getString(R.string.fail_exclamation_mark);
+            message = getString(R.string.pass);
         }else if(which == DRAW_PRIZE){
-            draw = "당첨!!";
-            message = "꽝";
+            draw = getString(R.string.prize_exclamation_mark);
+            message = getString(R.string.fail);
         }
         int randomNumber = (int)(Math.random()*participantNumber);
 
@@ -309,7 +314,7 @@ public class BetSetting extends AppCompatActivity {
 
         for(int i = 0; i < participantNumber; i++){
             ((EditText)gridLayout.getChildAt(i).findViewById(R.id.edtBetName))
-                    .setText("내기"+(i+1));
+                    .setText(getString(R.string.bet)+(i+1));
         }
 
     }

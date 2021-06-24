@@ -1,3 +1,52 @@
 <resources>
     <string name="app_name">LadderGame</string>
+
+    <string name="blank"> </string>
+    <string name="person">명</string>
+    getString(R.string.)
+
+    <string name="participant">참여</string>
+    <string name="enter_participants">참여자 입력</string>
+    <string name="enter_doing_participants">참여자 입력하기</string>
+
+    <string name="bet">내기</string>
+    <string name="enter_bet">내기 입력</string>
+    <string name="pix_bet">내기 수정하기</string>
+    <string name="choose_a_bet">내기를 선택해주세요</string>
+    <string name="draw_a_blank">꽝뽑기</string>
+    <string name="fail">꽝</string>
+    <string name="fail_exclamation_mark">꽝!!</string>
+    <string name="pass">통과</string>
+    <string name="drawing_a_prize">당첨뽑기</string>
+    <string name="prize">당첨</string>
+    <string name="prize_exclamation_mark">당첨!!</string>
+
+
+
+    <string name="what_should_i_eat_today">오늘 뭐 먹지</string>
+    <string name="food_black_soybean_sauce_noodle">짜장면</string>
+    <string name="food_stew">찌개</string>
+    <string name="food_pork_cutlet">돈까스</string>
+    <string name="food_jjambbong">짬뽕</string>
+    <string name="food_noodle">국수</string>
+    <string name="food_pasta">파스타</string>
+    <string name="food_hamburger">햄버거</string>
+    <string name="food_korean_cuisine">한식</string>
+    <string name="food_raw_fish">회</string>
+    <string name="food_pizza">피자</string>
+    <string name="food_stir_fried_rice_cake">떡볶이</string>
+    <string name="food_meat">고기</string>
+    <string name="food_ramen">라면</string>
+    <string name="food_rice_with_soy_sauce_egg">간장계란밥</string>
+    <string name="food_kimchi_fried_rice">김치볶음밥</string>
+    <string name="food_starving">굶기</string>
+
+
+
+    <string name="do_it_again">다시하기</string>
+
+    <string name="overall_results">전체결과</string>
+
+
+
 </resources>
