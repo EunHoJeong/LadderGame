@@ -14,6 +14,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private Button btnParticipantInput, btnModifyBet, btnStart;
 
     private LadderCanvas ladderCanvas;
+    private RelativeLayout unClicked;
 
     private String[] participantNames;
     private String[] betNames;
@@ -123,23 +125,21 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void relayLadderResult(int[] result) {
                 ladderResult = result;
+                unClicked.setClickable(false);
             }
         };
 
         ladderCanvas = new LadderCanvas(this, participantNumber, callbackLadderResult);
 
 
-        ladderLayout = findViewById(R.id.ladderLayout);
-        relativeLayout = findViewById(R.id.relativeLayout);
+        findViewByIdFunc();
+
 
 
 
         relativeLayout.addView(ladderCanvas);
 
 
-        btnParticipantInput = findViewById(R.id.btnParticipantInput);
-        btnModifyBet = findViewById(R.id.btnModifyBet);
-        btnStart = findViewById(R.id.btnStart);
 
 
         eventHandlerFunc();
@@ -153,6 +153,15 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void findViewByIdFunc() {
+        ladderLayout = findViewById(R.id.ladderLayout);
+        relativeLayout = findViewById(R.id.relativeLayout);
+        unClicked = findViewById(R.id.unClicked);
+        btnParticipantInput = findViewById(R.id.btnParticipantInput);
+        btnModifyBet = findViewById(R.id.btnModifyBet);
+        btnStart = findViewById(R.id.btnStart);
+    }
+
     private void createView(int position) {
         View addView = LayoutInflater.from(getApplicationContext()).inflate(R.layout.ladder_item, null, false);
 
@@ -161,15 +170,18 @@ public class MainActivity extends AppCompatActivity {
         TextView tvBetName = addView.findViewById(R.id.tvBetName);
 
         String number = String.valueOf(position+1);
-        String participantName = "참여"+number;
-        String betName = "내기"+number;
+        String participantName = getString(R.string.participant)+number;
+        String betName = getString(R.string.bet)+number;
 
         tvNumber.setText(number);
-
         tvNumber.setOnClickListener(v -> {
-            ladderCanvas.setIsAnimation(true);
+
             ladderCanvas.goAnimation(position);
+            unClicked.setClickable(true);
         });
+
+        tvNumber.setClickable(false);
+
 
         tvParticipantName.setText(participantName);
         tvBetName.setText(betName);
@@ -202,29 +214,18 @@ public class MainActivity extends AppCompatActivity {
 
 
         btnStart.setOnClickListener(v -> {
-            registerTvBetName();
-
+            setTvNumberClickable(true);
             isStart = true;
-            ladderCanvas.setIsStart(true);
-            ladderCanvas.invalidate();
 
+            ladderCanvas.ladderStart();
 
             btnStart.setVisibility(View.INVISIBLE);
-            btnModifyBet.setText("다시하기");
-            btnParticipantInput.setText("전체결과");
+            btnModifyBet.setText(getString(R.string.do_it_again));
+            btnParticipantInput.setText(getString(R.string.overall_results));
 
             ladderResult = ladderCanvas.getLadderResult();
 
         });
-    }
-
-    private void registerTvBetName() {
-        for(int i = 0; i < participantNumber; i++){
-            final int position = i;
-            ladderLayout.getChildAt(i).findViewById(R.id.tvBetName).setOnClickListener(v -> {
-                Toast.makeText(this, "참여"+ladderResult[position], Toast.LENGTH_SHORT).show();
-            });
-        }
     }
 
     private void registerBtnModifyBet() {
@@ -237,8 +238,10 @@ public class MainActivity extends AppCompatActivity {
                 ladderCanvas.invalidate();
 
                 btnStart.setVisibility(View.VISIBLE);
-                btnModifyBet.setText("내기 수정하기");
-                btnParticipantInput.setText("참여자 입력하기");
+                btnModifyBet.setText(getString(R.string.pix_bet));
+                btnParticipantInput.setText(getString(R.string.enter_participants));
+
+                setTvNumberClickable(false);
 
 
             }else{
@@ -261,8 +264,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void registerBtnParticipantInput() {
         btnParticipantInput.setOnClickListener(v -> {
+
             if(isStart){
 
+                ladderCanvas.goAnimation(3);
             }else{
                 Intent intent = new Intent(this, ParticipantSetting.class);
                 intent.putExtra("participantNumber", participantNumber);
@@ -288,6 +293,12 @@ public class MainActivity extends AppCompatActivity {
     private String[] jsonFromStringArray(String jsonData){
         Gson gson = new Gson();
         return gson.fromJson(jsonData, String[].class);
+    }
+
+    private void setTvNumberClickable(boolean isClick) {
+        for (int i = 0; i < participantNumber; i++) {
+            ladderLayout.getChildAt(i).findViewById(R.id.tvNumber).setClickable(isClick);
+        }
     }
 
 

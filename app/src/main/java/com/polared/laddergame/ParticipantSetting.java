@@ -52,7 +52,7 @@ public class ParticipantSetting extends AppCompatActivity {
         setContentView(R.layout.activity_participant_setting);
 
         View customView = LayoutInflater.from(this).inflate(R.layout.toolbar, null, false);
-        ((TextView)customView.findViewById(R.id.tvTitle)).setText("참여자 입력");
+        ((TextView)customView.findViewById(R.id.tvTitle)).setText(getString(R.string.enter_participants));
         customView.setLayoutParams(new ActionBar.LayoutParams(
                 ActionBar.LayoutParams.MATCH_PARENT,
                 ActionBar.LayoutParams.MATCH_PARENT));
@@ -111,7 +111,7 @@ public class ParticipantSetting extends AppCompatActivity {
 
         setTvNumber(tvNumber, position);
 
-        edtParticipantName.setText("참여"+(position+1));
+        edtParticipantName.setText(getString(R.string.participant)+(position+1));
 
         ibTextClear.setOnClickListener(v -> {
             edtParticipantName.setText("");
@@ -138,7 +138,10 @@ public class ParticipantSetting extends AppCompatActivity {
     @SuppressLint("SetTextI18n")
     private void eventHandlerFunc() {
 
-        tvCurrentHeadcount.setText("참여 "+participantNumber+"명");
+        tvCurrentHeadcount.setText(getString(R.string.participant)
+                +getString(R.string.blank)
+                +participantNumber
+                +getString(R.string.person));
 
         registerIbMinusMember();
 
@@ -202,7 +205,11 @@ public class ParticipantSetting extends AppCompatActivity {
             }
 
             participantNumber++;
-            tvCurrentHeadcount.setText("참여 " + participantNumber + "명");
+            tvCurrentHeadcount.setText(getString(R.string.participant)
+                    +getString(R.string.blank)
+                    +participantNumber
+                    +getString(R.string.person));
+
             createView(participantNumber-1);
             setLastEdtParticipantNameImeOption();
         });
@@ -222,7 +229,10 @@ public class ParticipantSetting extends AppCompatActivity {
             }
 
             participantNumber--;
-            tvCurrentHeadcount.setText("참여 " + participantNumber + "명");
+            tvCurrentHeadcount.setText(getString(R.string.participant)
+                    +getString(R.string.blank)
+                    +participantNumber
+                    +getString(R.string.person));
             gridLayout.removeViewAt(participantNumber);
             setLastEdtParticipantNameImeOption();
 
