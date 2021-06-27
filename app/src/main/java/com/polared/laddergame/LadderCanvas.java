@@ -112,18 +112,10 @@ public class LadderCanvas extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        paint = new Paint();
-
-
-
-
-        paint.setColor(Color.GRAY);
-        paint.setStrokeWidth(20);
-
-        canvas.drawLine(135, 350, 135, 1650, paint);
+        canvas.drawLine(135, 350, 135, 1650, ladderLinePaint);
 
         for (int i = 1; i < lineCount; i++) {
-            canvas.drawLine(135+(i*252), 350, 135+(i*252), 1650, paint);
+            canvas.drawLine(135+(i*252), 350, 135+(i*252), 1650, ladderLinePaint);
         }
 
         if (isStart) {
@@ -207,23 +199,19 @@ public class LadderCanvas extends View {
         if (stopY > 355+(heightNum*130)) {
             drawList.add(new DrawAnimationLocation(startX, startY, stopX, stopY));
 
+            startY = 350 + (130*heightNum);
+            stopY = 350 + (130*heightNum);
+
             if (list.get(lineNum).getNextLocation()[heightNum] != 0) {
 
-                startY = 350 + (130*heightNum);
-                stopY = 350 + (130*heightNum);
-
-                moveX = 5;
-                moveY = 5;
-
-
-                if(list.get(lineNum).getNextLocation()[heightNum] == heightNum+2){
+                if (list.get(lineNum).getNextLocation()[heightNum] == heightNum+2) {
                     isDrawingDiagonal = true;
                     isTop = false;
                     moveX = 9.7f;
                     moveY = 10.2f;
                     heightNum++;
 
-                }else{
+                } else {
                     isDrawingX = true;
                     moveX = 15f;
                     isLeft = false;
@@ -233,23 +221,20 @@ public class LadderCanvas extends View {
 
             } else if (list.get(lineNum-position).getNextLocation()[heightNum] == heightNum) {
 
-                startY = 350 + (130*heightNum);
-                stopY = 350 + (130*heightNum);
-
                 moveX = -15f;
-
 
                 isDrawingX = true;
                 isLeft = true;
-
 
                 lineNum--;
 
 
             }  else if(heightNum-2 > 0) {
+
                 if (list.get(lineNum - position).getNextLocation()[heightNum - 2] == heightNum) {
-                    startY = 350 + (130*heightNum);
-                    stopY = 350 + (130*heightNum);
+
+                    moveX = -9.7f;
+                    moveY = -10.2f;
 
                     heightNum -= 3;
                     isDrawingDiagonal = true;
@@ -261,17 +246,20 @@ public class LadderCanvas extends View {
 
 
         } else {
-            stopY += 5;
-            canvas.drawLine(startX, startY, stopX, stopY, paint);
+            stopY += 20;
+            canvas.drawLine(startX, startY, stopX, stopY, animationLinePaint);
         }
 
         if (stopY < 1650) {
-            postInvalidateDelayed(2);
+            postInvalidateDelayed(drawSpeed);
+        } else {
+            callbackLadderResult.relayLadderResult(ladderResult);
         }
 
 
 
     }
+
 
     private void animationLocationDiagonal(Canvas canvas){
 
@@ -290,8 +278,8 @@ public class LadderCanvas extends View {
 
 
                 } else {
-                    stopX -= 4.85;
-                    stopY -= 5.1;
+                    stopX += moveX;
+                    stopY += moveY;
                 }
             }else{
                 if (stopY > 355+(heightNum*130)) {
@@ -308,15 +296,15 @@ public class LadderCanvas extends View {
 
 
                 } else {
-                    stopX += 4.9;
-                    stopY += 5.1;
+                    stopX += moveX;
+                    stopY += moveY;
                 }
             }
 
 
 
-        canvas.drawLine(startX, startY, stopX, stopY, paint);
-        postInvalidateDelayed(2);
+        canvas.drawLine(startX, startY, stopX, stopY, animationLinePaint);
+        postInvalidateDelayed(drawSpeed);
     }
 
 
@@ -365,7 +353,7 @@ public class LadderCanvas extends View {
                 int stopX = 135+((i+1)*252);
                 int stopY = 350+(nextLine*130);
 
-                canvas.drawLine(startX, startY, stopX, stopY, paint);
+                canvas.drawLine(startX, startY, stopX, stopY, ladderLinePaint);
 
             }
         }

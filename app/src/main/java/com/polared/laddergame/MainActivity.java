@@ -5,6 +5,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.MutableLiveData;
 
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
@@ -48,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private int typePosition = 0;
 
     private boolean isStart;
+
 
     private int[] colors = new int[]{R.color.my_pink, R.color.my_green, R.color.my_orange, R.color.my_indigo
             , R.color.my_yellow, R.color.my_turquoise, R.color.my_purple, R.color.my_sky
@@ -131,15 +133,9 @@ public class MainActivity extends AppCompatActivity {
 
         ladderCanvas = new LadderCanvas(this, participantNumber, callbackLadderResult);
 
-
         findViewByIdFunc();
 
-
-
-
         relativeLayout.addView(ladderCanvas);
-
-
 
 
         eventHandlerFunc();
