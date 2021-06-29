@@ -4,9 +4,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -23,13 +20,14 @@ public class LadderCanvas extends View {
     private boolean isLeft;
     private boolean isTop;
     private boolean isDrawingDiagonal;
-    boolean isAnimation;
+    private boolean isAnimation;
 
 
     private int lineCount;
     private int lineNum;
     private int heightNum;
     private int participantNum;
+    private int participantNumber;
     private int drawSpeed;
 
     private int startX;
@@ -94,13 +92,14 @@ public class LadderCanvas extends View {
         drawList = new ArrayList<>();
         lineNum = position;
         participantNum = position;
+        participantNumber = position;
         heightNum = 1;
         startX = 135+(lineNum*252);
         startY = 350;
         stopX =  135+(lineNum*252);
         stopY = 350;
 
-        animationLinePaint.setColor(colors[participantNum]);
+        animationLinePaint.setColor(colors[participantNumber]);
         animationLinePaint.setStrokeWidth(20);
 
         isAnimation = true;
@@ -253,7 +252,7 @@ public class LadderCanvas extends View {
         if (stopY < 1650) {
             postInvalidateDelayed(drawSpeed);
         } else {
-            callbackLadderResult.relayLadderResult(ladderResult);
+            callbackLadderResult.relayLadderResult(lineNum, participantNum);
         }
 
 

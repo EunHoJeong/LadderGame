@@ -1,5 +1,5 @@
 package com.polared.laddergame;
 
 public interface CallbackLadderResult {
-    public void relayLadderResult(int[] ladderResult);
+    void relayLadderResult(int resultNum, int participantNum);
 }

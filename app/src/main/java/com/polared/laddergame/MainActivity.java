@@ -5,6 +5,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.MutableLiveData;
 
 import android.annotation.SuppressLint;
@@ -14,6 +15,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -51,9 +53,13 @@ public class MainActivity extends AppCompatActivity {
     private boolean isStart;
 
 
-    private int[] colors = new int[]{R.color.my_pink, R.color.my_green, R.color.my_orange, R.color.my_indigo
-            , R.color.my_yellow, R.color.my_turquoise, R.color.my_purple, R.color.my_sky
-            , R.color.my_brown, R.color.my_gray, R.color.my_red, R.color.my_beige };
+    private int[] colors;
+    private int[] borderColor = new int[] { R.drawable.border_dotted_pink, R.drawable.border_dotted_green
+            , R.drawable.border_dotted_orange, R.drawable.border_dotted_indigo, R.drawable.border_dotted_yellow
+            , R.drawable.border_dotted_turquoise, R.drawable.border_dotted_purple, R.drawable.border_dotted_sky
+            , R.drawable.border_dotted_brown, R.drawable.border_dotted_gray, R.drawable.border_dotted_red
+            , R.drawable.border_dotted_beige};
+
 
     private ActivityResultLauncher mStartForResult = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -123,11 +129,19 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setCustomView(R.layout.toolbar);
 
+        colors = new int[]{ContextCompat.getColor(getApplicationContext(), R.color.my_pink), ContextCompat.getColor(getApplicationContext(), R.color.my_green), ContextCompat.getColor(getApplicationContext(), R.color.my_orange)
+                , ContextCompat.getColor(getApplicationContext(), R.color.my_indigo), ContextCompat.getColor(getApplicationContext(), R.color.my_yellow), ContextCompat.getColor(getApplicationContext(), R.color.my_turquoise)
+                , ContextCompat.getColor(getApplicationContext(), R.color.my_purple), ContextCompat.getColor(getApplicationContext(), R.color.my_sky), ContextCompat.getColor(getApplicationContext(), R.color.my_brown)
+                , ContextCompat.getColor(getApplicationContext(), R.color.my_gray), ContextCompat.getColor(getApplicationContext(), R.color.my_red), ContextCompat.getColor(getApplicationContext(), R.color.my_beige) };
+
+
         CallbackLadderResult callbackLadderResult = new CallbackLadderResult() {
             @Override
-            public void relayLadderResult(int[] result) {
-                ladderResult = result;
+            public void relayLadderResult(int resultNum, int participantNum) {
                 unClicked.setClickable(false);
+                ((TextView)ladderLayout.getChildAt(resultNum).findViewById(R.id.tvBetName)).setBackgroundResource(borderColor[participantNum]);
+                ((TextView)ladderLayout.getChildAt(resultNum).findViewById(R.id.tvBetName)).setTextColor(colors[participantNum]);
+
             }
         };
 
@@ -143,9 +157,6 @@ public class MainActivity extends AppCompatActivity {
         for(int i = 0; i < participantNumber; i++){
             createView(i);
         }
-
-
-
 
     }
 
@@ -182,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
         tvParticipantName.setText(participantName);
         tvBetName.setText(betName);
 
-        tvNumber.setBackgroundResource(colors[position]);
+        tvNumber.setBackgroundColor(colors[position]);
 
         ladderLayout.addView(addView);
     }
@@ -247,6 +258,7 @@ public class MainActivity extends AppCompatActivity {
                 btnParticipantInput.setText(getString(R.string.enter_participants));
 
                 setTvNumberClickable(false);
+                clearBetName();
 
 
             }else{
@@ -265,6 +277,13 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
+    }
+
+    private void clearBetName() {
+        for (int i = 0; i < participantNumber; i++) {
+            ((TextView)ladderLayout.getChildAt(i).findViewById(R.id.tvBetName)).setBackgroundResource(R.drawable.border_dotted);
+            ((TextView)ladderLayout.getChildAt(i).findViewById(R.id.tvBetName)).setTextColor(Color.BLACK);
+        }
     }
 
     private void registerBtnParticipantInput() {
