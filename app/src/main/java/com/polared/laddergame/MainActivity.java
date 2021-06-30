@@ -4,13 +4,17 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.content.Intent;
+import android.database.Observable;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -18,6 +22,8 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +36,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+
+import java.util.HashMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
     private static final int RESULT_PARTICIPANT = 100;
@@ -52,6 +63,16 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean isStart;
 
+    private LadderViewModel viewModel;
+
+    private ExecutorService executorService;
+
+    private Handler handler = new Handler(Looper.getMainLooper()){
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+        }
+    };
 
     private int[] colors;
     private int[] borderColor = new int[] { R.drawable.border_dotted_pink, R.drawable.border_dotted_green
@@ -85,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
 
                         setParticipantName();
 
-                        ladderCanvas.init(participantNumber);
+                        ladderCanvas.setLadderLine(participantNumber);
 
                     }else if(result.getResultCode() == RESULT_BET){
 
@@ -135,17 +156,22 @@ public class MainActivity extends AppCompatActivity {
                 , ContextCompat.getColor(getApplicationContext(), R.color.my_gray), ContextCompat.getColor(getApplicationContext(), R.color.my_red), ContextCompat.getColor(getApplicationContext(), R.color.my_beige) };
 
 
-        CallbackLadderResult callbackLadderResult = new CallbackLadderResult() {
+        viewModel = new LadderViewModel(new CallbackLadderResult() {
             @Override
             public void relayLadderResult(int resultNum, int participantNum) {
-                unClicked.setClickable(false);
                 ((TextView)ladderLayout.getChildAt(resultNum).findViewById(R.id.tvBetName)).setBackgroundResource(borderColor[participantNum]);
                 ((TextView)ladderLayout.getChildAt(resultNum).findViewById(R.id.tvBetName)).setTextColor(colors[participantNum]);
-
             }
-        };
 
-        ladderCanvas = new LadderCanvas(this, participantNumber, callbackLadderResult);
+            @Override
+            public void setClickable() {
+                unClicked.setClickable(false);
+            }
+        });
+
+        setObserver();
+
+        ladderCanvas = new LadderCanvas(this, participantNumber, viewModel);
 
         findViewByIdFunc();
 
@@ -158,6 +184,16 @@ public class MainActivity extends AppCompatActivity {
             createView(i);
         }
 
+    }
+
+    private void setObserver() {
+        Observer<Integer> participantResultObserver = new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer position) {
+                ((TextView)ladderLayout.getChildAt(position).findViewById(R.id.tvNumber)).setAlpha(0.5f);
+            }
+        };
+        viewModel.getCurrentName().observe(this, participantResultObserver);
     }
 
     private void findViewByIdFunc() {
@@ -182,8 +218,8 @@ public class MainActivity extends AppCompatActivity {
 
         tvNumber.setText(number);
         tvNumber.setOnClickListener(v -> {
-
-            ladderCanvas.goAnimation(position);
+            tvParticipantName.setTextColor(colors[position]);
+            ladderCanvas.init(LadderCanvas.ANIMATION, LadderCanvas.DRAW_ANIMATION_Y, position);
             unClicked.setClickable(true);
         });
 
@@ -224,13 +260,11 @@ public class MainActivity extends AppCompatActivity {
             setTvNumberClickable(true);
             isStart = true;
 
-            ladderCanvas.ladderStart();
+            ladderCanvas.init(LadderCanvas.START, 0, 0);
 
             btnStart.setVisibility(View.INVISIBLE);
             btnModifyBet.setText(getString(R.string.do_it_again));
             btnParticipantInput.setText(getString(R.string.overall_results));
-
-            ladderResult = ladderCanvas.getLadderResult();
 
         });
     }
@@ -239,7 +273,7 @@ public class MainActivity extends AppCompatActivity {
         for(int i = 0; i < participantNumber; i++){
             final int position = i;
             ladderLayout.getChildAt(i).findViewById(R.id.tvBetName).setOnClickListener(v -> {
-                Toast.makeText(this, "참여"+ladderResult[position], Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.participant)+ladderResult[position], Toast.LENGTH_SHORT).show();
             });
         }
     }
@@ -251,14 +285,13 @@ public class MainActivity extends AppCompatActivity {
                 isStart = false;
 
                 ladderCanvas.clearDraw();
-                ladderCanvas.invalidate();
 
                 btnStart.setVisibility(View.VISIBLE);
                 btnModifyBet.setText(getString(R.string.pix_bet));
                 btnParticipantInput.setText(getString(R.string.enter_participants));
 
                 setTvNumberClickable(false);
-                clearBetName();
+                allClear();
 
 
             }else{
@@ -279,19 +312,12 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void clearBetName() {
-        for (int i = 0; i < participantNumber; i++) {
-            ((TextView)ladderLayout.getChildAt(i).findViewById(R.id.tvBetName)).setBackgroundResource(R.drawable.border_dotted);
-            ((TextView)ladderLayout.getChildAt(i).findViewById(R.id.tvBetName)).setTextColor(Color.BLACK);
-        }
-    }
 
     private void registerBtnParticipantInput() {
         btnParticipantInput.setOnClickListener(v -> {
 
             if(isStart){
 
-                ladderCanvas.goAnimation(3);
             }else{
                 Intent intent = new Intent(this, ParticipantSetting.class);
                 intent.putExtra("participantNumber", participantNumber);
@@ -322,6 +348,15 @@ public class MainActivity extends AppCompatActivity {
     private void setTvNumberClickable(boolean isClick) {
         for (int i = 0; i < participantNumber; i++) {
             ladderLayout.getChildAt(i).findViewById(R.id.tvNumber).setClickable(isClick);
+        }
+    }
+
+    private void allClear(){
+        for (int i = 0; i < participantNumber; i++) {
+            ((TextView)ladderLayout.getChildAt(i).findViewById(R.id.tvBetName)).setBackgroundResource(R.drawable.border_dotted);
+            ((TextView)ladderLayout.getChildAt(i).findViewById(R.id.tvBetName)).setTextColor(Color.BLACK);
+            ((TextView)ladderLayout.getChildAt(i).findViewById(R.id.tvParticipantName)).setTextColor(Color.BLACK);
+            ((TextView)ladderLayout.getChildAt(i).findViewById(R.id.tvNumber)).setAlpha(1.0f);
         }
     }
 
