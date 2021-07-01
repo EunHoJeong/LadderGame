@@ -29,4 +29,8 @@ public class LadderViewModel extends ViewModel {
     public void setClickable(){
         callbackLadderResult.setClickable();
     }
+
+    public void ladderGameEnd() {
+        callbackLadderResult.ladderGameEnd();
+    }
 }

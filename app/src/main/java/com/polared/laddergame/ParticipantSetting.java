@@ -42,7 +42,7 @@ public class ParticipantSetting extends AppCompatActivity {
 
     private int[] colors = new int[]{R.color.my_pink, R.color.my_green, R.color.my_orange, R.color.my_indigo
             , R.color.my_yellow, R.color.my_turquoise, R.color.my_purple, R.color.my_sky
-            , R.color.my_brown, R.color.my_gray, R.color.my_red, R.color.my_beige };
+            , R.color.my_brown, R.color.my_dark_purple, R.color.my_red, R.color.my_beige };
 
 
     @SuppressLint("WrongConstant")

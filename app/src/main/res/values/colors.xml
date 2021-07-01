@@ -12,12 +12,12 @@
     <color name="my_green">     #F08BC34A</color>
     <color name="my_orange">    #FFFF5722</color>
     <color name="my_indigo">    #FF3F51B5</color>
-    <color name="my_yellow">    #B5D3C336</color>
+    <color name="my_yellow">    #FFD3C336</color>
     <color name="my_turquoise"> #FF009688</color>
     <color name="my_purple">    #FF673AB7</color>
     <color name="my_sky">       #FF00BCD4</color>
-    <color name="my_gray">      #FF838383</color>
+    <color name="my_dark_purple">      #F0751A78</color>
     <color name="my_red">       #FFD60E0E</color>
-    <color name="my_brown">     #80CD7619</color>
+    <color name="my_brown">     #F0CD7619</color>
     <color name="my_beige">     #FFEAC781</color>
 </resources>
