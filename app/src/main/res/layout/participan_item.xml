@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_marginTop="10dp"
     android:layout_width="160dp"
-    android:ignoreGravity="@id/ibTextClear"
+    android:layout_gravity="center_horizontal"
     android:layout_height="wrap_content">
 
 
@@ -27,7 +27,8 @@
         android:maxLines="1"
         android:inputType="text"
         android:imeOptions="actionNext"
-        android:background="@drawable/widget_border"/>
+        android:background="@drawable/widget_border"
+        android:paddingLeft="36dp" />
 
     <ImageButton
         android:id="@+id/ibTextClear"
@@ -35,7 +36,8 @@
         android:layout_height="30dp"
         android:layout_centerVertical="true"
         android:layout_alignEnd="@id/edtParticipantName"
-        android:background="@drawable/clear" />
+        android:background="@drawable/clear"
+        android:layout_alignRight="@id/edtParticipantName" />
 
 
 </RelativeLayout>

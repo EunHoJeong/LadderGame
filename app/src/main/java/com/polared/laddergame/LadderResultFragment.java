@@ -43,6 +43,10 @@ public class LadderResultFragment extends Fragment {
 
         resultList = gson.fromJson(jsonArrayResultDataList, listType);
 
+        if (resultList.size()%3 == 1) {
+            resultList.add(new LadderResultData(-1, "", ""));
+        }
+
         ladderResultAdapter = new LadderResultAdapter(resultList);
 
 
@@ -62,23 +66,28 @@ public class LadderResultFragment extends Fragment {
 
         btnPreviousScreen.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
-            bundle.putString("reload", "OK");
-            MainFragment mainFragment = (MainFragment) MainFragment.getInstance();
-            mainFragment.setArguments(bundle);
+            bundle.putString("reload", "reload");
+            MainFragment mainFragment = (MainFragment) getParentFragmentManager().findFragmentByTag("main");
+            if (mainFragment != null) {
+                mainFragment.setArguments(bundle);
+            }
             replaceFragment(mainFragment);
         });
 
         btnReStart.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
-            bundle.putString("clear", "OK");
-            MainFragment mainFragment = (MainFragment) MainFragment.getInstance();
-            mainFragment.setArguments(bundle);
+            bundle.putString("clear", "clear");
+            MainFragment mainFragment = (MainFragment) getParentFragmentManager().findFragmentByTag("main");
+            if (mainFragment != null) {
+                mainFragment.setArguments(bundle);
+            }
             replaceFragment(mainFragment);
         });
     }
 
     private void replaceFragment(Fragment fragment){
-        FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+
+        FragmentTransaction ft = getParentFragmentManager().beginTransaction();
         ft.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
         ft.replace(R.id.main_frameLayout, fragment);
         ft.commit();

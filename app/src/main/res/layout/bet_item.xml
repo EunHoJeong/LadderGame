@@ -24,6 +24,7 @@
         android:layout_height="30dp"
         android:layout_centerVertical="true"
         android:layout_alignEnd="@id/edtBetName"
-        android:background="@drawable/clear" />
+        android:background="@drawable/clear"
+        android:layout_alignRight="@id/edtBetName" />
 
 </RelativeLayout>

@@ -1,14 +1,11 @@
 package com.polared.laddergame;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -23,13 +20,10 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 
-public class BetSetting extends AppCompatActivity {
+public class BetSetting extends BaseActivity {
     private static final int RESULT_BET = 200;
 
-    private static final int CHOICE_BET = 0;
-    private static final int DRAW_BLANK = 1;
-    private static final int DRAW_PRIZE = 2;
-    private static final int WHAT_EAT_TODAY = 3;
+
 
     private LinearLayout mainLayout;
     private GridLayout gridLayout;
@@ -43,7 +37,7 @@ public class BetSetting extends AppCompatActivity {
     private String jsonBetNames;
 
     private int typePosition = 0;
-    private int participantNumber = 0;
+    private int participantNum = 0;
 
     @SuppressLint("WrongConstant")
     @Override
@@ -64,14 +58,14 @@ public class BetSetting extends AppCompatActivity {
                 , getString(R.string.draw_a_blank), getString(R.string.drawing_a_prize)
                 , getString(R.string.what_should_i_eat_today)};
 
-        participantNumber = getIntent().getIntExtra("participantNumber", 2);
+        participantNum = getIntent().getIntExtra("participantNumber", 2);
         typePosition = getIntent().getIntExtra("typePosition", 0);
 
         findViewByIdFunc();
 
         eventHandlerFunc();
 
-        for(int i = 0; i < participantNumber; i++){
+        for(int i = 0; i < participantNum; i++){
             createView(i);
         }
 
@@ -87,7 +81,7 @@ public class BetSetting extends AppCompatActivity {
     }
 
     private void setLastEdtBetNameImeOption() {
-        ((EditText)gridLayout.getChildAt(participantNumber-1).findViewById(R.id.edtBetName))
+        ((EditText)gridLayout.getChildAt(participantNum -1).findViewById(R.id.edtBetName))
                 .setImeOptions(EditorInfo.IME_ACTION_DONE);
     }
 
@@ -131,10 +125,10 @@ public class BetSetting extends AppCompatActivity {
     }
 
     private void setEdtBetName() {
-        if(participantNumber > betNames.length){
+        if(participantNum > betNames.length){
             setToType(typePosition);
         }else{
-            for(int i = 0; i < participantNumber; i++){
+            for(int i = 0; i < participantNum; i++){
 
                 ((EditText)gridLayout.getChildAt(i).findViewById(R.id.edtBetName))
                         .setText(betNames[i]);
@@ -177,7 +171,7 @@ public class BetSetting extends AppCompatActivity {
 
                 Intent intent = new Intent();
                 intent.putExtra("jsonBetNames", jsonBetNames);
-                intent.putExtra("participantNumber", participantNumber);
+                intent.putExtra("participantNumber", participantNum);
                 intent.putExtra("typePosition", typePosition);
                 setResult(RESULT_BET, intent);
 
@@ -205,15 +199,14 @@ public class BetSetting extends AppCompatActivity {
         tvBetType.setOnClickListener(v -> {
 
             setAlertDialog();
-
         });
 
     }
 
     private boolean checkData() {
-        betNames = new String[participantNumber];
+        betNames = new String[participantNum];
 
-        for(int i = 0; i < participantNumber; i++){
+        for(int i = 0; i < participantNum; i++){
             EditText betName = ((EditText)gridLayout.getChildAt(i).findViewById(R.id.edtBetName));
             if(betName.length() > 0){
                 betNames[i] = betName.getText().toString();
@@ -233,12 +226,13 @@ public class BetSetting extends AppCompatActivity {
 
         builder.setSingleChoiceItems(betType, typePosition, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
+            public void onClick(DialogInterface dialog, int type) {
 
-                if(typePosition != which){
-                    setToType(which);
-                    typePosition = which;
+                if(typePosition != type){
+                    setToType(type);
+                    typePosition = type;
                     tvBetType.setText(betType[typePosition]);
+                    setEdtBetName();
                 }
 
                 dialog.dismiss();
@@ -249,84 +243,35 @@ public class BetSetting extends AppCompatActivity {
         dialog.show();
     }
 
-    private void setToType(int which) {
 
-        switch(which){
-            case CHOICE_BET:
-                nameForBetChoiceBet();
+    public void setToType(int type) {
+
+        switch(type){
+            case BetData.NONE:
+                betNames = nameForBetChoiceBet();
+                break;
+            case BetData.DRAW_BLANK:
+            case BetData.DRAW_PRIZE:
+                betNames = betData.nameForBetDrawBlankOrPrize(type, participantNum);
                 break;
 
-            case DRAW_BLANK:
-            case DRAW_PRIZE:
-                nameForBetDrawBlankOrPrize(which);
+            case BetData.WHAT_EAT_TODAY:
+                betNames = betData.nameForBetWhatEatToday(participantNum);
                 break;
-
-            case WHAT_EAT_TODAY:
-                nameForBetWhatEatToday();
-                break;
+            default:
         }
 
     }
 
-    private void nameForBetWhatEatToday() {
-        String[] foods = new String[]{ getString(R.string.food_black_soybean_sauce_noodle), getString(R.string.food_stew), getString(R.string.food_pork_cutlet)
-                , getString(R.string.food_jjambbong), getString(R.string.food_noodle), getString(R.string.food_pasta), getString(R.string.food_hamburger)
-                , getString(R.string.food_korean_cuisine), getString(R.string.food_raw_fish), getString(R.string.food_pizza), getString(R.string.food_stir_fried_rice_cake)
-                , getString(R.string.food_meat), getString(R.string.food_ramen), getString(R.string.food_rice_with_soy_sauce_egg), getString(R.string.food_kimchi_fried_rice)
-                , getString(R.string.food_starving)};
+    private String[] nameForBetChoiceBet() {
+        String[] betName = new String[participantNum];
 
-        boolean[] isUsed = new boolean[foods.length];
-
-
-        for(int i = 0; i < participantNumber; i++){
-            int randomNumber = (int)(Math.random()*foods.length);
-
-            if(isUsed[randomNumber]) {
-                i--;
-                continue;
-            }else{
-                isUsed[randomNumber] = true;
-
-                ((EditText)gridLayout.getChildAt(i).findViewById(R.id.edtBetName))
-                        .setText(foods[randomNumber]);
-            }
-
+        for(int i = 1; i <= participantNum; i++){
+            betName[i-1] = getString(R.string.bet)+i;
         }
-
+        return betName;
     }
 
-
-    private void nameForBetDrawBlankOrPrize(int which) {
-        String draw = null;
-        String message = null;
-
-        if(which == DRAW_BLANK){
-            draw = getString(R.string.fail_exclamation_mark);
-            message = getString(R.string.pass);
-        }else if(which == DRAW_PRIZE){
-            draw = getString(R.string.prize_exclamation_mark);
-            message = getString(R.string.fail);
-        }
-        int randomNumber = (int)(Math.random()*participantNumber);
-
-        for(int i = 0; i < participantNumber; i++){
-            ((EditText)gridLayout.getChildAt(i).findViewById(R.id.edtBetName))
-                    .setText(message);
-        }
-
-        ((EditText)gridLayout.getChildAt(randomNumber).findViewById(R.id.edtBetName))
-                .setText(draw);
-
-    }
-
-    private void nameForBetChoiceBet() {
-
-        for(int i = 0; i < participantNumber; i++){
-            ((EditText)gridLayout.getChildAt(i).findViewById(R.id.edtBetName))
-                    .setText(getString(R.string.bet)+(i+1));
-        }
-
-    }
 
     private void findViewByIdFunc() {
 
@@ -341,9 +286,4 @@ public class BetSetting extends AppCompatActivity {
 
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-//        gridLayout.removeAllViews();
-    }
 }

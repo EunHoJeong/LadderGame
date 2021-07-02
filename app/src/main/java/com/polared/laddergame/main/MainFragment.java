@@ -27,6 +27,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 
 import com.google.gson.Gson;
+import com.polared.laddergame.BetData;
 import com.polared.laddergame.BetSetting;
 import com.polared.laddergame.CallbackLadderResult;
 import com.polared.laddergame.LGColors;
@@ -49,7 +50,6 @@ public class MainFragment extends Fragment {
     private static final int RESULT_BET = 200;
     private static final int SWITCH_SCREEN = 10;
 
-    private static MainFragment mainFragment;
 
     private LinearLayout ladderLayout;
     private RelativeLayout relativeLayout;
@@ -71,8 +71,8 @@ public class MainFragment extends Fragment {
     private boolean isStart;
 
     private LadderViewModel viewModel;
+    private View view;
 
-    View view;
 
     private Handler handler = new Handler(Looper.getMainLooper()){
 
@@ -109,6 +109,7 @@ public class MainFragment extends Fragment {
                     int beforeNumber = participantNum;
                     participantNum = result.getData().getIntExtra("participantNumber", 4);
 
+
                     if(result.getResultCode() == RESULT_PARTICIPANT){
 
                         String jsonParticipantNames = result.getData().getStringExtra("jsonParticipantNames");
@@ -133,9 +134,32 @@ public class MainFragment extends Fragment {
                         setBetName();
                     }
 
+                    if (beforeNumber != participantNum) {
+                        setToType(typePosition);
+                        setBetName();
+                    }
+
+
 
                 }
             });
+
+    public void setToType(int type) {
+
+        switch(type){
+
+            case BetData.DRAW_BLANK:
+            case BetData.DRAW_PRIZE:
+                betNames = ((MainActivity)getContext()).betData.nameForBetDrawBlankOrPrize(type, participantNum);
+                break;
+
+            case BetData.WHAT_EAT_TODAY:
+                betNames = ((MainActivity)getContext()).betData.nameForBetWhatEatToday(participantNum);
+                break;
+            default:
+        }
+
+    }
 
     private void getBetName(){
         for (int i = 0; i < participantNum; i++) {
@@ -163,18 +187,16 @@ public class MainFragment extends Fragment {
         }
     }
 
-    public static Fragment getInstance(){
-        if (mainFragment == null) {
-            mainFragment = new MainFragment();
-        }
-        return mainFragment;
+    public static Fragment newInstance(){
+        return new MainFragment();
     }
 
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        if (getActivity().getSupportFragmentManager().findFragmentByTag("result") == null) {
+
+        if (getArguments() == null) {
             view = LayoutInflater.from(getContext()).inflate(R.layout.fragment_main, container, false);
 
             setViewModel();
@@ -199,9 +221,11 @@ public class MainFragment extends Fragment {
             resultList = new ArrayList<>();
         }
 
-        if (mainFragment.getArguments() !=null && mainFragment.getArguments().getString("clear") != null) {
-            allClear();
 
+
+
+        if (getArguments() != null && getArguments().getString("clear") != null) {
+            allClear();
         }
 
 
@@ -272,7 +296,7 @@ public class MainFragment extends Fragment {
         FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
         ft.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
         ft.replace(R.id.main_frameLayout, ladderResultFragment, "result");
-        ft.addToBackStack(null);
+        ft.addToBackStack("main");
 
         ft.commit();
 
@@ -353,8 +377,10 @@ public class MainFragment extends Fragment {
         });
     }
 
+
     private void shuffleBetName() {
         Random random = new Random();
+
         for (int i = 0; i < betNames.length; i++) {
             int shuffle = random.nextInt(betNames.length);
             String temp = betNames[i];

@@ -1,6 +1,7 @@
 package com.polared.laddergame;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
 
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
@@ -66,6 +67,8 @@ public class ParticipantSetting extends AppCompatActivity {
 
         eventHandlerFunc();
 
+
+
         for(int i = 0; i < participantNumber; i++){
             createView(i);
         }
@@ -87,6 +90,8 @@ public class ParticipantSetting extends AppCompatActivity {
             ibPlusMember.setClickable(false);
             ibPlusMember.setAlpha(0.3f);
         }
+
+
 
 
     }

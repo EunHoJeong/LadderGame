@@ -22,7 +22,6 @@
     <string name="prize_exclamation_mark">당첨!!</string>
 
 
-
     <string name="what_should_i_eat_today">오늘 뭐 먹지</string>
     <string name="food_black_soybean_sauce_noodle">짜장면</string>
     <string name="food_stew">찌개</string>
@@ -42,11 +41,9 @@
     <string name="food_starving">굶기</string>
 
 
-
     <string name="do_it_again">다시하기</string>
 
     <string name="overall_results">전체결과</string>
-
 
 
 </resources>

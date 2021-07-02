@@ -5,8 +5,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -31,17 +29,19 @@ public class LadderResultAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             LadderResult result = (LadderResult) holder;
 
             int number = resultList.get(holder.getAdapterPosition()).getNumber();
+            if (number != -1) {
+                String participantName = resultList.get(holder.getAdapterPosition()).getParticipantName();
+                String betName = resultList.get(holder.getAdapterPosition()).getBetName();
 
-            String participantName = resultList.get(holder.getAdapterPosition()).getParticipantName();
-            String betName = resultList.get(holder.getAdapterPosition()).getBetName();
+                result.result_participant_number.setText(String.valueOf(number+1));
+                result.result_participant_number.setBackgroundColor(LGColors.getColor(number));
 
-            result.result_participant_number.setText(String.valueOf(number+1));
-            result.result_participant_number.setBackgroundColor(LGColors.getColor(number));
+                result.result_participant_name.setText(participantName);
 
-            result.result_participant_name.setText(participantName);
+                result.result_bet_name.setText(betName);
+                result.result_bet_name.setTextColor(LGColors.getColor(number));
 
-            result.result_bet_name.setText(betName);
-            result.result_bet_name.setTextColor(LGColors.getColor(number));
+            }
         }
     }
 

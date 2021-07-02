@@ -66,12 +66,14 @@
 
     <GridLayout
         android:id="@+id/gridLayout"
-        android:layout_width="match_parent"
+        android:layout_width="350dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:columnCount="2"
+        android:layout_gravity="center"
         android:padding="15dp"
         android:useDefaultMargins="true">
+
 
     </GridLayout>
 
