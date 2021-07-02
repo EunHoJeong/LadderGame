@@ -1,4 +1,4 @@
-package com.polared.laddergame;
+package com.polared.laddergame.draw;
 
 public class DrawAnimationLocation {
     private int startX;

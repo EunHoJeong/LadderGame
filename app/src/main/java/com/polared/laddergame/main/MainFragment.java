@@ -1,12 +1,17 @@
-package com.polared.laddergame;
+package com.polared.laddergame.main;
 
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -16,19 +21,33 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.core.content.ContextCompat;
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 
 import com.google.gson.Gson;
+import com.polared.laddergame.BetSetting;
+import com.polared.laddergame.CallbackLadderResult;
+import com.polared.laddergame.LGColors;
+import com.polared.laddergame.draw.LadderCanvas;
+import com.polared.laddergame.LadderResultData;
+import com.polared.laddergame.LadderResultFragment;
+import com.polared.laddergame.LadderViewModel;
+import com.polared.laddergame.ParticipantSetting;
+import com.polared.laddergame.R;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Random;
 
 import static android.app.Activity.RESULT_CANCELED;
 
 public class MainFragment extends Fragment {
     private static final int RESULT_PARTICIPANT = 100;
     private static final int RESULT_BET = 200;
+    private static final int SWITCH_SCREEN = 10;
 
     private static MainFragment mainFragment;
 
@@ -42,6 +61,8 @@ public class MainFragment extends Fragment {
     private String[] participantNames;
     private String[] betNames;
 
+    private ArrayList<LadderResultData> resultList;
+
 
     private int participantNum = 4;
     private int endCount = 0;
@@ -53,7 +74,19 @@ public class MainFragment extends Fragment {
 
     View view;
 
-    private int[] colors;
+    private Handler handler = new Handler(Looper.getMainLooper()){
+
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            switch (msg.what) {
+                case SWITCH_SCREEN:
+                    switchScreen();
+                    break;
+            }
+
+        }
+    };
+
     private int[] borderColor = new int[] { R.drawable.border_dotted_pink, R.drawable.border_dotted_green
             , R.drawable.border_dotted_orange, R.drawable.border_dotted_indigo, R.drawable.border_dotted_yellow
             , R.drawable.border_dotted_turquoise, R.drawable.border_dotted_purple, R.drawable.border_dotted_sky
@@ -67,6 +100,7 @@ public class MainFragment extends Fragment {
 
                 @Override
                 public void onActivityResult(ActivityResult result) {
+
                     if(result.getResultCode() == RESULT_CANCELED
                             || result.getData() == null){
                         return ;
@@ -80,10 +114,13 @@ public class MainFragment extends Fragment {
                         String jsonParticipantNames = result.getData().getStringExtra("jsonParticipantNames");
 
                         participantNames = jsonFromStringArray(jsonParticipantNames);
+                        betNames = new String[participantNum];
 
                         setParticipantView(beforeNumber);
 
                         setParticipantName();
+
+                        getBetName();
 
                         ladderCanvas.setLadderLine(participantNum);
 
@@ -99,6 +136,12 @@ public class MainFragment extends Fragment {
 
                 }
             });
+
+    private void getBetName(){
+        for (int i = 0; i < participantNum; i++) {
+            betNames[i] = ((TextView)ladderLayout.getChildAt(i).findViewById(R.id.tvBetName)).getText().toString();
+        }
+    }
 
     private void setParticipantView(int number) {
         if(participantNum == number){
@@ -133,46 +176,32 @@ public class MainFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (getActivity().getSupportFragmentManager().findFragmentByTag("result") == null) {
             view = LayoutInflater.from(getContext()).inflate(R.layout.fragment_main, container, false);
-            colors = new int[]{ContextCompat.getColor(getContext(), R.color.my_pink), ContextCompat.getColor(getContext(), R.color.my_green), ContextCompat.getColor(getContext(), R.color.my_orange)
-                    , ContextCompat.getColor(getContext(), R.color.my_indigo), ContextCompat.getColor(getContext(), R.color.my_yellow), ContextCompat.getColor(getContext(), R.color.my_turquoise)
-                    , ContextCompat.getColor(getContext(), R.color.my_purple), ContextCompat.getColor(getContext(), R.color.my_sky), ContextCompat.getColor(getContext(), R.color.my_brown)
-                    , ContextCompat.getColor(getContext(), R.color.my_dark_purple), ContextCompat.getColor(getContext(), R.color.my_red), ContextCompat.getColor(getContext(), R.color.my_beige) };
 
-
-            viewModel = new LadderViewModel(new CallbackLadderResult() {
-                @Override
-                public void relayLadderResult(int resultNum, int participantNum) {
-                    ((TextView)ladderLayout.getChildAt(resultNum).findViewById(R.id.tvBetName)).setBackgroundResource(borderColor[participantNum]);
-                    ((TextView)ladderLayout.getChildAt(resultNum).findViewById(R.id.tvBetName)).setTextColor(colors[participantNum]);
-                }
-
-                @Override
-                public void setClickable() {
-                    unClicked.setClickable(false);
-                }
-
-                @Override
-                public void ladderGameEnd() {
-                    endCount++;
-                    if (endCount == participantNum) {
-                        switchScreen();
-                    }
-                }
-            });
+            setViewModel();
 
             setObserver();
 
             ladderCanvas = new LadderCanvas(getContext(), participantNum, viewModel);
+
             findViewByIdFunc(view);
 
             relativeLayout.addView(ladderCanvas);
 
-
             eventHandlerFunc();
+
+            participantNames = new String[participantNum];
+            betNames = new String[participantNum];
 
             for(int i = 0; i < participantNum; i++){
                 createView(i);
             }
+
+            resultList = new ArrayList<>();
+        }
+
+        if (mainFragment.getArguments() !=null && mainFragment.getArguments().getString("clear") != null) {
+            allClear();
+
         }
 
 
@@ -182,23 +211,69 @@ public class MainFragment extends Fragment {
         return view;
     }
 
+    private void setViewModel() {
+        viewModel = new LadderViewModel(new CallbackLadderResult() {
+            @Override
+            public void relayLadderResult(int resultNum, int participantNum) {
+                ((TextView)ladderLayout.getChildAt(resultNum).findViewById(R.id.tvBetName)).setBackgroundResource(borderColor[participantNum]);
+                ((TextView)ladderLayout.getChildAt(resultNum).findViewById(R.id.tvBetName)).setTextColor(LGColors.getColor(participantNum));
+                resultList.add(new LadderResultData(participantNum, participantNames[participantNum], betNames[resultNum]));
+            }
+
+            @Override
+            public void setClickable() {
+                unClicked.setClickable(false);
+            }
+
+            @Override
+            public void ladderGameEnd(int lastPosition) {
+                endCount++;
+                if (endCount == participantNum) {
+                    ladderCanvas.init(LadderCanvas.ANIMATION, lastPosition);
+                    Message message = new Message();
+                    message.what = SWITCH_SCREEN;
+                    handler.sendMessageDelayed(message, 700);
+                }
+            }
+        });
+    }
+
     private void setObserver() {
+
         Observer<Integer> participantResultObserver = new Observer<Integer>() {
             @Override
             public void onChanged(Integer position) {
+
                 ((TextView)ladderLayout.getChildAt(position).findViewById(R.id.tvNumber)).setAlpha(0.5f);
             }
         };
-        viewModel.getCurrentName().observe(getViewLifecycleOwner(), participantResultObserver);
+
+        viewModel.getCurrentName().observeForever(participantResultObserver);
     }
 
     private void switchScreen(){
-        FragmentManager fm = getActivity().getSupportFragmentManager();
 
-        FragmentTransaction ft = fm.beginTransaction();
+        Collections.sort(resultList, new Comparator<LadderResultData>() {
+            @Override
+            public int compare(LadderResultData o1, LadderResultData o2) {
+                return Integer.compare(o1.getNumber(), o2.getNumber());
+            }
+        });
+
+        Gson gson = new Gson();
+        String jsonArrayResultDataList = gson.toJson(resultList);
+
+        Bundle bundle = new Bundle();
+        bundle.putString("jsonArrayResultDataList", jsonArrayResultDataList);
+
+        LadderResultFragment ladderResultFragment = new LadderResultFragment();
+        ladderResultFragment.setArguments(bundle);
+
+        FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
         ft.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
-        ft.replace(R.id.main_frameLayout, new LadderResultFragment(), "result");
+        ft.replace(R.id.main_frameLayout, ladderResultFragment, "result");
         ft.addToBackStack(null);
+
         ft.commit();
 
     }
@@ -222,10 +297,12 @@ public class MainFragment extends Fragment {
         String number = String.valueOf(position+1);
         String participantName = getString(R.string.participant)+number;
         String betName = getString(R.string.bet)+number;
+        participantNames[position] = participantName;
+        betNames[position] = betName;
 
         tvNumber.setText(number);
         tvNumber.setOnClickListener(v -> {
-            tvParticipantName.setTextColor(colors[position]);
+            tvParticipantName.setTextColor(LGColors.getColor(position));
             ladderCanvas.init(LadderCanvas.ANIMATION, position);
             unClicked.setClickable(true);
         });
@@ -236,13 +313,12 @@ public class MainFragment extends Fragment {
         tvParticipantName.setText(participantName);
         tvBetName.setText(betName);
 
-        tvNumber.setBackgroundColor(colors[position]);
+        tvNumber.setBackgroundColor(LGColors.getColor(position));
 
         ladderLayout.addView(addView);
     }
 
     private void setBetName() {
-
         for(int i = 0; i < participantNum; i++){
             ((TextView) ladderLayout.getChildAt(i).findViewById(R.id.tvBetName))
                     .setText(betNames[i]);
@@ -272,8 +348,21 @@ public class MainFragment extends Fragment {
             btnStart.setVisibility(View.INVISIBLE);
             btnModifyBet.setText(getString(R.string.do_it_again));
             btnParticipantInput.setText(getString(R.string.overall_results));
+            shuffleBetName();
 
         });
+    }
+
+    private void shuffleBetName() {
+        Random random = new Random();
+        for (int i = 0; i < betNames.length; i++) {
+            int shuffle = random.nextInt(betNames.length);
+            String temp = betNames[i];
+            betNames[i] = betNames[shuffle];
+            betNames[shuffle] = temp;
+        }
+
+        setBetName();
     }
 
 
@@ -281,17 +370,7 @@ public class MainFragment extends Fragment {
         btnModifyBet.setOnClickListener(v -> {
             if(isStart){
 
-                isStart = false;
-
-                ladderCanvas.clearDraw();
-
-                btnStart.setVisibility(View.VISIBLE);
-                btnModifyBet.setText(getString(R.string.pix_bet));
-                btnParticipantInput.setText(getString(R.string.enter_participants));
-
-                setTvNumberClickable(false);
                 allClear();
-                endCount = 0;
 
             }else{
 
@@ -314,7 +393,6 @@ public class MainFragment extends Fragment {
 
     private void registerBtnParticipantInput() {
         btnParticipantInput.setOnClickListener(v -> {
-            Log.d("Test", "edtCount = " + endCount);
             if(endCount == participantNum) {
                 switchScreen();
                 return;
@@ -322,6 +400,12 @@ public class MainFragment extends Fragment {
 
             if(isStart){
                 ladderCanvas.allResult();
+                resultList = new ArrayList<>();
+                endCount = 0;
+                for (int i = 0; i < participantNum; i++) {
+                    ((TextView)ladderLayout.getChildAt(i).findViewById(R.id.tvParticipantName)).setTextColor(LGColors.getColor(i));
+                    ((TextView)ladderLayout.getChildAt(i).findViewById(R.id.tvNumber)).setAlpha(1.0f);
+                }
             }else{
                 Intent intent = new Intent(getContext(), ParticipantSetting.class);
                 intent.putExtra("participantNumber", participantNum);
@@ -356,13 +440,28 @@ public class MainFragment extends Fragment {
     }
 
     private void allClear(){
+        isStart = false;
+        endCount = 0;
+        resultList = new ArrayList<>();
+
+        ladderCanvas.clearDraw();
+
+        btnStart.setVisibility(View.VISIBLE);
+        btnModifyBet.setText(getString(R.string.pix_bet));
+        btnParticipantInput.setText(getString(R.string.enter_participants));
+
+
         for (int i = 0; i < participantNum; i++) {
             ((TextView)ladderLayout.getChildAt(i).findViewById(R.id.tvBetName)).setBackgroundResource(R.drawable.border_dotted);
             ((TextView)ladderLayout.getChildAt(i).findViewById(R.id.tvBetName)).setTextColor(Color.BLACK);
             ((TextView)ladderLayout.getChildAt(i).findViewById(R.id.tvParticipantName)).setTextColor(Color.BLACK);
             ((TextView)ladderLayout.getChildAt(i).findViewById(R.id.tvNumber)).setAlpha(1.0f);
         }
+
+        setTvNumberClickable(false);
     }
+
+
 
 
 }

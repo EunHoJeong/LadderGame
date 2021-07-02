@@ -19,6 +19,7 @@ import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 
@@ -112,6 +113,15 @@ public class BetSetting extends AppCompatActivity {
 
         edtBetName.setText(getString(R.string.bet)+(position+1));
 
+        edtBetName.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    edtBetName.setSelection(edtBetName.length());
+                }
+            }
+        });
+
         ibTextClear.setOnClickListener(v -> {
             edtBetName.setText(R.string.blank);
         });
@@ -204,14 +214,13 @@ public class BetSetting extends AppCompatActivity {
         betNames = new String[participantNumber];
 
         for(int i = 0; i < participantNumber; i++){
-            if(((EditText)gridLayout.getChildAt(i).findViewById(R.id.edtBetName)).length() > 0){
-                betNames[i] = ((EditText)gridLayout
-                            .getChildAt(i)
-                            .findViewById(R.id.edtBetName))
-                            .getText()
-                            .toString();
+            EditText betName = ((EditText)gridLayout.getChildAt(i).findViewById(R.id.edtBetName));
+            if(betName.length() > 0){
+                betNames[i] = betName.getText().toString();
 
             }else{
+                betName.requestFocus();
+                Toast.makeText(this, "내기를 입력해주세요.", Toast.LENGTH_SHORT).show();
                 return false;
             }
         }

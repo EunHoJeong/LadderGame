@@ -1,14 +1,20 @@
-package com.polared.laddergame;
+package com.polared.laddergame.draw;
 
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
+
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
+
+import com.polared.laddergame.LGColors;
+import com.polared.laddergame.LadderViewModel;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -17,10 +23,8 @@ public class LadderCanvas extends View {
     public static final int START = 1;
     public static final int ANIMATION = 2;
     public static final int LADDER_RESULT = 3;
-    public static final int ALL_RESULT = 4;
 
     private int type = 0;
-    private int animationType = 0;
 
     private int lineCount;
     private int lineNum = 4;
@@ -44,8 +48,6 @@ public class LadderCanvas extends View {
     private ArrayList<DrawAnimationLocation> drawList;
     private ArrayList<DrawLadderAnimation> drawLadderAnimationsList;
 
-    private int[] colors;
-
     private LadderViewModel ladderViewModel;
 
 
@@ -57,11 +59,6 @@ public class LadderCanvas extends View {
         ladderLinePaint.setColor(Color.GRAY);
         ladderLinePaint.setStrokeWidth(20);
         animationLinePaint.setStrokeWidth(20);
-
-        colors = new int[]{ContextCompat.getColor(context, R.color.my_pink), ContextCompat.getColor(context, R.color.my_green), ContextCompat.getColor(context, R.color.my_orange)
-                , ContextCompat.getColor(context, R.color.my_indigo), ContextCompat.getColor(context, R.color.my_yellow), ContextCompat.getColor(context, R.color.my_turquoise)
-                , ContextCompat.getColor(context, R.color.my_purple), ContextCompat.getColor(context, R.color.my_sky), ContextCompat.getColor(context, R.color.my_brown)
-                , ContextCompat.getColor(context, R.color.my_dark_purple), ContextCompat.getColor(context, R.color.my_red), ContextCompat.getColor(context, R.color.my_beige) };
 
         drawSpeed = 5;
     }
@@ -83,13 +80,15 @@ public class LadderCanvas extends View {
         heightNum = 1;
         participantNumber = position;
 
-        animationLinePaint.setColor(colors[participantNumber]);
+        animationLinePaint.setColor(LGColors.getColor(participantNumber));
 
         if (type == ANIMATION) {
             if(ladderResult.get(position) == null){
                 drawList = new ArrayList<>();
                 drawLadderAnimationsList = new ArrayList<>();
                 drawLadderAnimationsList.add(new DrawLadderAnimation(lineNum, participantNumber, list, animationLinePaint));
+
+
             } else {
                 drawList = ladderResult.get(position);
                 this.type = LADDER_RESULT;
@@ -107,7 +106,7 @@ public class LadderCanvas extends View {
         for(int i = 0; i < lineCount; i++) {
             Paint paint = new Paint();
             paint.setStrokeWidth(20);
-            paint.setColor(colors[i]);
+            paint.setColor(LGColors.getColor(i));
             drawLadderAnimationsList.add(new DrawLadderAnimation(i, i, list, paint));
         }
 
@@ -160,18 +159,24 @@ public class LadderCanvas extends View {
                     ,drawLadderAnimationsList.get(i).getAnimationLinePaint());
         }
 
+
         for (int i = 0; i < drawLadderAnimationsList.size(); i++) {
 
-            if (drawLadderAnimationsList.get(i).getStopY() < 1650 || heightNum == 0) {
-                postInvalidateDelayed(drawSpeed);
-            } else if (!drawLadderAnimationsList.get(i).isEnd()){
+
+            if (drawLadderAnimationsList.get(i).getStopY() > 1650
+            && !drawLadderAnimationsList.get(i).isEnd()){
+
                 drawLadderAnimationsList.get(i).setEnd(true);
                 ladderViewModel.ladderResult(drawLadderAnimationsList.get(i).getLineNumber(), drawLadderAnimationsList.get(i).getParticipantNumber());
                 ladderViewModel.setClickable();
                 ladderResult.put(drawLadderAnimationsList.get(i).getParticipantNumber(), drawLadderAnimationsList.get(i).getDrawList());
-                ladderViewModel.ladderGameEnd();
+                ladderViewModel.ladderGameEnd(drawLadderAnimationsList.get(i).getParticipantNumber());
+                drawLadderAnimationsList.remove(i);
             }
+        }
 
+        if(drawLadderAnimationsList.size() != 0) {
+            postInvalidateDelayed(drawSpeed);
         }
 
 
@@ -324,16 +329,20 @@ public class LadderCanvas extends View {
 
     public void clearDraw(){
         type = 0;
-        animationType = 0;
         ladderResult = new HashMap<>();
         invalidate();
     }
 
+
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
         int height = getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec);
+
         setMeasuredDimension(3000, height);
+
+
 
 
     }

@@ -1,11 +1,11 @@
-package com.polared.laddergame;
+package com.polared.laddergame.draw;
 
-import android.graphics.Canvas;
 import android.graphics.Paint;
 
 import java.util.ArrayList;
 
 public class DrawLadderAnimation {
+    public static final int NONE = -1;
     public static final int DRAW_ANIMATION_X = 10;
     public static final int DRAW_ANIMATION_Y = 11;
     public static final int DRAW_ANIMATION_DIAGONAL = 12;
@@ -167,7 +167,7 @@ public class DrawLadderAnimation {
 
         if (stopY > 1650) {
             drawList.add(new DrawAnimationLocation(startX, startY, stopX, stopY));
-            animationType = -1;
+            animationType = NONE;
         }
 
     }
@@ -263,5 +263,9 @@ public class DrawLadderAnimation {
 
     public void setEnd(boolean end) {
         isEnd = end;
+    }
+
+    public void setDrawList(ArrayList<DrawAnimationLocation> drawList) {
+        this.drawList = drawList;
     }
 }

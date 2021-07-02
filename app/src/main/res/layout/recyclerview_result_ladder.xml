@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_gravity="center"
+    android:background="@drawable/layout_border">
+
+
+    <TextView
+        android:id="@+id/result_participant_number"
+        android:layout_marginTop="15dp"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:textSize="25sp"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:clickable="false"/>
+
+    <TextView
+        android:layout_marginTop="7dp"
+        android:id="@+id/result_participant_name"
+        android:layout_width="64dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textColor="@color/black"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:gravity="center"/>
+
+    <TextView
+
+        android:id="@+id/result_bet_name"
+        android:layout_marginBottom="15dp"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:padding="3dp"
+        android:textSize="15sp"
+        android:textColor="@color/black"
+        android:gravity="center" />
+
+
+
+
+</LinearLayout>

@@ -30,7 +30,7 @@ public class LadderViewModel extends ViewModel {
         callbackLadderResult.setClickable();
     }
 
-    public void ladderGameEnd() {
-        callbackLadderResult.ladderGameEnd();
+    public void ladderGameEnd(int lastPosition) {
+        callbackLadderResult.ladderGameEnd(lastPosition);
     }
 }

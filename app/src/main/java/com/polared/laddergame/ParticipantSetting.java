@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Selection;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -24,11 +25,14 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 
 public class ParticipantSetting extends AppCompatActivity {
     private static final int RESULT_PARTICIPANT = 100;
+    private static final int ADD = 1;
+    private static final int NONE = 2;
 
     private LinearLayout mainLayout;
     private GridLayout gridLayout;
@@ -39,10 +43,6 @@ public class ParticipantSetting extends AppCompatActivity {
     private String jsonParticipantNames;
     private String[] participantNames;
     private int participantNumber = 0;
-
-    private int[] colors = new int[]{R.color.my_pink, R.color.my_green, R.color.my_orange, R.color.my_indigo
-            , R.color.my_yellow, R.color.my_turquoise, R.color.my_purple, R.color.my_sky
-            , R.color.my_brown, R.color.my_dark_purple, R.color.my_red, R.color.my_beige };
 
 
     @SuppressLint("WrongConstant")
@@ -70,7 +70,7 @@ public class ParticipantSetting extends AppCompatActivity {
             createView(i);
         }
 
-        setLastEdtParticipantNameImeOption();
+        setLastEdtParticipantNameImeOption(NONE);
 
         jsonParticipantNames = getIntent().getStringExtra("jsonParticipantNames");
 
@@ -80,12 +80,26 @@ public class ParticipantSetting extends AppCompatActivity {
         }
 
 
-
+        if (participantNumber == 2) {
+            ibMinusMember.setClickable(false);
+            ibMinusMember.setAlpha(0.3f);
+        } else if (participantNumber == 12) {
+            ibPlusMember.setClickable(false);
+            ibPlusMember.setAlpha(0.3f);
+        }
 
 
     }
 
-    private void setLastEdtParticipantNameImeOption() {
+    private void setLastEdtParticipantNameImeOption(int type) {
+
+        switch (type) {
+            case ADD:
+                ((EditText)gridLayout.getChildAt(participantNumber-2).findViewById(R.id.edtParticipantName))
+                        .setImeOptions(EditorInfo.IME_ACTION_NEXT);
+                break;
+        }
+
         ((EditText)gridLayout.getChildAt(participantNumber-1).findViewById(R.id.edtParticipantName))
                 .setImeOptions(EditorInfo.IME_ACTION_DONE);
     }
@@ -113,6 +127,16 @@ public class ParticipantSetting extends AppCompatActivity {
 
         edtParticipantName.setText(getString(R.string.participant)+(position+1));
 
+        edtParticipantName.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    edtParticipantName.setSelection(edtParticipantName.length());
+                }
+            }
+        });
+
+
         ibTextClear.setOnClickListener(v -> {
             edtParticipantName.setText("");
         });
@@ -131,7 +155,7 @@ public class ParticipantSetting extends AppCompatActivity {
 
     private void setTvNumber(TextView tvNumber, int position) {
         tvNumber.setText(""+(position+1));
-        tvNumber.setBackgroundResource(colors[position]);
+        tvNumber.setBackgroundColor(LGColors.getColor(position));
     }
 
 
@@ -211,7 +235,7 @@ public class ParticipantSetting extends AppCompatActivity {
                     +getString(R.string.person));
 
             createView(participantNumber-1);
-            setLastEdtParticipantNameImeOption();
+            setLastEdtParticipantNameImeOption(ADD);
         });
     }
 
@@ -234,7 +258,7 @@ public class ParticipantSetting extends AppCompatActivity {
                     +participantNumber
                     +getString(R.string.person));
             gridLayout.removeViewAt(participantNumber);
-            setLastEdtParticipantNameImeOption();
+            setLastEdtParticipantNameImeOption(NONE);
 
 
         });
@@ -245,13 +269,13 @@ public class ParticipantSetting extends AppCompatActivity {
         participantNames = new String[participantNumber];
 
         for(int i = 0; i < participantNumber; i++){
-            if(((EditText)gridLayout.getChildAt(i).findViewById(R.id.edtParticipantName)).length() > 0){
-                participantNames[i] = ((EditText)gridLayout
-                                     .getChildAt(i)
-                                     .findViewById(R.id.edtParticipantName))
-                                     .getText()
-                                     .toString();
+            EditText participantName = ((EditText)gridLayout.getChildAt(i).findViewById(R.id.edtParticipantName));
+            if(participantName.length() > 0){
+                participantNames[i] = participantName.getText().toString();
             }else{
+                participantName.requestFocus();
+                Toast.makeText(this, "참여자를 입력해주세요.", Toast.LENGTH_SHORT).show();
+
                 return false;
             }
 
