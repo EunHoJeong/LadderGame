@@ -52,11 +52,11 @@ public class MainFragment extends Fragment {
 
 
     private LinearLayout ladderLayout;
-    private RelativeLayout relativeLayout;
+    private RelativeLayout unClicked;
+    private RelativeLayout canvasContainer;
     private Button btnParticipantInput, btnModifyBet, btnStart;
 
     private LadderCanvas ladderCanvas;
-    private RelativeLayout unClicked;
 
     private String[] participantNames;
     private String[] betNames;
@@ -203,11 +203,10 @@ public class MainFragment extends Fragment {
 
             setObserver();
 
-            ladderCanvas = new LadderCanvas(getContext(), participantNum, viewModel);
-
             findViewByIdFunc(view);
 
-            relativeLayout.addView(ladderCanvas);
+            ladderCanvas = new LadderCanvas(getContext(), participantNum, viewModel);
+            canvasContainer.addView(ladderCanvas);
 
             eventHandlerFunc();
 
@@ -225,7 +224,7 @@ public class MainFragment extends Fragment {
 
 
         if (getArguments() != null && getArguments().getString("clear") != null) {
-            allClear();
+            initLadderGame();
         }
 
 
@@ -304,7 +303,7 @@ public class MainFragment extends Fragment {
 
     private void findViewByIdFunc(View view) {
         ladderLayout = view.findViewById(R.id.ladderLayout);
-        relativeLayout = view.findViewById(R.id.relativeLayout);
+        canvasContainer = view.findViewById(R.id.relativeLayout);
         unClicked = view.findViewById(R.id.unClicked);
         btnParticipantInput = view.findViewById(R.id.btnParticipantInput);
         btnModifyBet = view.findViewById(R.id.btnModifyBet);
@@ -396,7 +395,7 @@ public class MainFragment extends Fragment {
         btnModifyBet.setOnClickListener(v -> {
             if(isStart){
 
-                allClear();
+                initLadderGame();
 
             }else{
 
@@ -425,13 +424,9 @@ public class MainFragment extends Fragment {
             }
 
             if(isStart){
-                ladderCanvas.allResult();
-                resultList = new ArrayList<>();
-                endCount = 0;
-                for (int i = 0; i < participantNum; i++) {
-                    ((TextView)ladderLayout.getChildAt(i).findViewById(R.id.tvParticipantName)).setTextColor(LGColors.getColor(i));
-                    ((TextView)ladderLayout.getChildAt(i).findViewById(R.id.tvNumber)).setAlpha(1.0f);
-                }
+
+                allResult();
+
             }else{
                 Intent intent = new Intent(getContext(), ParticipantSetting.class);
                 intent.putExtra("participantNumber", participantNum);
@@ -445,6 +440,20 @@ public class MainFragment extends Fragment {
             }
 
         });
+    }
+
+    private void allResult() {
+        ladderCanvas.allResult();
+        resultList = new ArrayList<>();
+        endCount = 0;
+        unClicked.setClickable(true);
+
+        for (int i = 0; i < participantNum; i++) {
+            ((TextView)ladderLayout.getChildAt(i).findViewById(R.id.tvParticipantName)).setTextColor(LGColors.getColor(i));
+            ((TextView)ladderLayout.getChildAt(i).findViewById(R.id.tvNumber)).setAlpha(1.0f);
+            ((TextView)ladderLayout.getChildAt(i).findViewById(R.id.tvBetName)).setTextColor(Color.BLACK);
+            ((TextView)ladderLayout.getChildAt(i).findViewById(R.id.tvBetName)).setBackgroundResource(R.drawable.border_dotted);
+        }
     }
 
 
@@ -465,7 +474,7 @@ public class MainFragment extends Fragment {
         }
     }
 
-    private void allClear(){
+    private void initLadderGame(){
         isStart = false;
         endCount = 0;
         resultList = new ArrayList<>();

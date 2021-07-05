@@ -9,6 +9,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.HorizontalScrollView;
 
 import androidx.annotation.Nullable;
 
@@ -24,11 +25,11 @@ public class LadderCanvas extends View {
     public static final int ANIMATION = 2;
     public static final int LADDER_RESULT = 3;
 
+
     private int type = 0;
 
     private int lineCount;
-    private int lineNum = 4;
-    private int heightNum;
+    private int lineNum;
     private int participantNumber;
 
     private int drawSpeed;
@@ -49,8 +50,6 @@ public class LadderCanvas extends View {
     private ArrayList<DrawLadderAnimation> drawLadderAnimationsList;
 
     private LadderViewModel ladderViewModel;
-
-
 
     public LadderCanvas(Context context, int lineCount, LadderViewModel ladderViewModel) {
         super(context);
@@ -77,7 +76,6 @@ public class LadderCanvas extends View {
     public void init(int type, int position){
         this.type = type;
         lineNum = position;
-        heightNum = 1;
         participantNumber = position;
 
         animationLinePaint.setColor(LGColors.getColor(participantNumber));
@@ -335,15 +333,4 @@ public class LadderCanvas extends View {
 
 
 
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-
-        int height = getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec);
-
-        setMeasuredDimension(3000, height);
-
-
-
-
-    }
 }
