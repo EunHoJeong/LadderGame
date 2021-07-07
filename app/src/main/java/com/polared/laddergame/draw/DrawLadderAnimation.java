@@ -100,11 +100,12 @@ public class DrawLadderAnimation {
     private void animationLocationX() {
         if(isLeft){
             if (stopX < reachPointX) {
+                stopX = reachPointX;
                 animationType = DRAW_ANIMATION_Y;
                 drawList.add(new DrawAnimationLocation(startX, startY, stopX, stopY));
 
                 startX = reachPointX;
-                stopX = reachPointX;
+
                 startY -= 10;
 
             } else {
@@ -113,10 +114,12 @@ public class DrawLadderAnimation {
         }else{
             if (stopX > reachPointX) {
                 animationType = DRAW_ANIMATION_Y;
+                stopX = reachPointX;
+
                 drawList.add(new DrawAnimationLocation(startX, startY, stopX, stopY));
 
                 startX = reachPointX;
-                stopX = reachPointX;
+
                 startY -= 10;
 
             } else {
@@ -138,8 +141,9 @@ public class DrawLadderAnimation {
         if (stopY > reachPointY) {
             drawList.add(new DrawAnimationLocation(startX, startY, stopX, stopY));
 
-            startY = reachPointY;
             stopY = reachPointY;
+            startY = reachPointY;
+
             if (list.get(lineNumber).getNextLocation()[heightNumber] != 0) {
 
 
@@ -149,11 +153,13 @@ public class DrawLadderAnimation {
                     isTop = false;
                     heightNumber++;
                     lineNumber++;
+                    setReachPointX();
                 } else {
                     animationType = DRAW_ANIMATION_X;
                     lineNumber++;
                     setReachPointX();
                     isLeft = false;
+                    startX -= 10;
                 }
 
 
@@ -165,6 +171,7 @@ public class DrawLadderAnimation {
                 isLeft = true;
 
                 lineNumber--;
+                startX += 10;
                 setReachPointX();
 
 
@@ -177,6 +184,7 @@ public class DrawLadderAnimation {
                     heightNumber -= 3;
                     animationType = DRAW_ANIMATION_DIAGONAL;
                     isTop = true;
+                    stopY -= 5;
                     lineNumber--;
                     setReachPointX();
                 }
@@ -211,14 +219,16 @@ public class DrawLadderAnimation {
         if(isTop){
             if (stopY < reachPointY) {
                 animationType = DRAW_ANIMATION_Y;
+                stopX = reachPointX;
+                stopY = reachPointY;
+
                 drawList.add(new DrawAnimationLocation(startX, startY, stopX, stopY));
 
                 startX = reachPointX;
-                stopX = reachPointX;
-                startY = reachPointY;
-                stopY = reachPointY;
+                startY = reachPointY-5;
 
-                startY -= 5;
+
+
                 heightNumber++;
                 setReachPointY();
 
@@ -229,14 +239,16 @@ public class DrawLadderAnimation {
         }else{
             if (stopY > reachPointY) {
                 animationType = DRAW_ANIMATION_Y;
-                drawList.add(new DrawAnimationLocation(startX, startY, stopX, stopY));
-                setReachPointX();
-                startX = reachPointX;
+
                 stopX = reachPointX;
-                startY = reachPointY;
                 stopY = reachPointY;
 
-                startY -= 20;
+                drawList.add(new DrawAnimationLocation(startX, startY, stopX, stopY));
+
+                startX = reachPointX;
+                startY = reachPointY-20;
+
+
                 heightNumber++;
                 setReachPointY();
 

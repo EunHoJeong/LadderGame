@@ -59,6 +59,7 @@ public class LadderCanvas extends View {
         super(context);
         this.lineCount = lineCount;
         this.ladderViewModel = ladderViewModel;
+
         ladderLinePaint.setColor(Color.GRAY);
         ladderLinePaint.setStrokeWidth(20);
         animationLinePaint.setStrokeWidth(20);

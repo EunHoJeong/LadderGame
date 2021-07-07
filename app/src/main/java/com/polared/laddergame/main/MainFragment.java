@@ -350,13 +350,17 @@ public class MainFragment extends Fragment {
 
         ladderLayout.addView(addView);
 
+        getViewLocation(addView);
+
+    }
+
+    private void getViewLocation(View addView) {
         addView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {
                 addView.getViewTreeObserver().removeOnPreDrawListener(this);
                 LinearLayout itemLayout = addView.findViewById(R.id.itemLayout);
                 TextView tvParticipantName = addView.findViewById(R.id.tvParticipantName);
-                TextView tvBetName = addView.findViewById(R.id.tvBetName);
 
                 float left = itemLayout.getLeft();
                 float right = itemLayout.getRight();
@@ -364,14 +368,11 @@ public class MainFragment extends Fragment {
                 float bottom = tvParticipantName.getBottom()+20;
                 float top = itemLayout.getBottom() - getResources().getDimension(R.dimen.ladder_line_height);
 
-                Log.d("Test", ""+x+" "+bottom+" "+top);
-
                 ladderCanvas.addLocation(new LayoutLocation(x, bottom, x, top));
 
                 return true;
             }
         });
-
     }
 
     private void setBetName() {
