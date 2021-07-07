@@ -1,12 +1,12 @@
 package com.polared.laddergame.draw;
 
-public class DrawAnimationLocation {
+public class LayoutLocation {
     private float startX;
     private float startY;
     private float stopX;
     private float stopY;
 
-    public DrawAnimationLocation(float startX, float startY, float stopX, float stopY) {
+    public LayoutLocation(float startX, float startY, float stopX, float stopY) {
         this.startX = startX;
         this.startY = startY;
         this.stopX = stopX;

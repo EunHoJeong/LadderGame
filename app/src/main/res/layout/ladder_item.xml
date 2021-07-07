@@ -34,7 +34,7 @@
         <TextView
             android:id="@+id/tvBetName"
             android:layout_width="64dp"
-            android:layout_height="wrap_content"
+            android:layout_height="25dp"
             android:layout_alignParentBottom="true"
             android:padding="5dp"
             android:textSize="12sp"

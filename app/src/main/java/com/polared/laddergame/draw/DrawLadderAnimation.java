@@ -1,6 +1,7 @@
 package com.polared.laddergame.draw;
 
 import android.graphics.Paint;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -19,16 +20,27 @@ public class DrawLadderAnimation {
     private int participantNumber;
     private int animationType = DRAW_ANIMATION_Y;
 
-    private int startX;
-    private int startY;
+    private float startX;
+    private float startY;
     private float stopX;
     private float stopY;
 
-    private int ladderDistanceX;
-    private int ladderDistanceY;
+    private int xDistance;
+    private int yDistance;
+    private int ladderXDistance;
+    private int ladderYDistance;
 
-    private float moveX;
-    private float moveY;
+    private int reachPointX;
+    private int reachPointY;
+    private float endPoint;
+
+    private float leftMoveX;
+    private float rightMoveX;
+    private float topDiagonalMoveX;
+    private float topDiagonalMoveY;
+    private float bottomDiagonalMoveX;
+    private float bottomDiagonalMoveY;
+    private float bottomMoveY;
 
     private Paint animationLinePaint;
 
@@ -36,19 +48,37 @@ public class DrawLadderAnimation {
     private ArrayList<DrawAnimationLocation> drawList = new ArrayList<>();
 
 
-    public DrawLadderAnimation(int lineNumber, int participantNumber, ArrayList<LadderLine> list, Paint animationLinePaint) {
+    public DrawLadderAnimation(int lineNumber, int participantNumber, ArrayList<LadderLine> list, Paint animationLinePaint, int xDistance, int yDistance, int ladderXDistance, int ladderYDistance, float x, float y, float endPoint) {
         this.lineNumber = lineNumber;
         this.participantNumber = participantNumber;
         this.list = list;
         this.animationLinePaint = animationLinePaint;
 
-        startX = 135 + (lineNumber * 252);
-        startY = 350;
-        stopX = 135 + (lineNumber * 252);
-        stopY = 350;
+        this.xDistance = xDistance;
+        this.yDistance = yDistance;
+        this.ladderXDistance = ladderXDistance;
+        this.ladderYDistance = ladderYDistance;
 
-        setLadderDistanceX();
+        this.startX = x;
+        this.startY = y;
+        this.stopX = x;
+        this.stopY = y;
+
+        this.endPoint = endPoint;
+
+
+        setReachPointX();
+        setReachPointY();
+
+        leftMoveX = -ladderXDistance/20;
+        rightMoveX = ladderXDistance/20;
+        bottomMoveY = ladderYDistance/10;
+        topDiagonalMoveX = -ladderXDistance/40;
+        topDiagonalMoveY = -ladderYDistance/20;
+        bottomDiagonalMoveX = ladderXDistance/40;
+        bottomDiagonalMoveY = ladderYDistance/20;
     }
+
 
     public void drawAnimation(){
 
@@ -69,28 +99,28 @@ public class DrawLadderAnimation {
 
     private void animationLocationX() {
         if(isLeft){
-            if (stopX < ladderDistanceX) {
+            if (stopX < reachPointX) {
                 animationType = DRAW_ANIMATION_Y;
                 drawList.add(new DrawAnimationLocation(startX, startY, stopX, stopY));
 
-                startX = ladderDistanceX;
-                stopX = ladderDistanceX;
+                startX = reachPointX;
+                stopX = reachPointX;
                 startY -= 10;
 
             } else {
-                stopX += moveX;
+                stopX += leftMoveX;
             }
         }else{
-            if (stopX > ladderDistanceX) {
+            if (stopX > reachPointX) {
                 animationType = DRAW_ANIMATION_Y;
                 drawList.add(new DrawAnimationLocation(startX, startY, stopX, stopY));
 
-                startX = ladderDistanceX;
-                stopX = ladderDistanceX;
+                startX = reachPointX;
+                stopX = reachPointX;
                 startY -= 10;
 
             } else {
-                stopX += moveX;
+                stopX += rightMoveX;
             }
         }
 
@@ -105,12 +135,11 @@ public class DrawLadderAnimation {
             position = 0;
         }
 
-        if (stopY > 355+(heightNumber*130)) {
+        if (stopY > reachPointY) {
             drawList.add(new DrawAnimationLocation(startX, startY, stopX, stopY));
 
-            startY = 350 + (130*heightNumber);
-            stopY = 350 + (130*heightNumber);
-
+            startY = reachPointY;
+            stopY = reachPointY;
             if (list.get(lineNumber).getNextLocation()[heightNumber] != 0) {
 
 
@@ -118,15 +147,12 @@ public class DrawLadderAnimation {
                     animationType = DRAW_ANIMATION_DIAGONAL;
 
                     isTop = false;
-                    moveX = 9.8f;
-                    moveY = 10.2f;
                     heightNumber++;
                     lineNumber++;
                 } else {
                     animationType = DRAW_ANIMATION_X;
                     lineNumber++;
-                    setLadderDistanceX();
-                    moveX = 15f;
+                    setReachPointX();
                     isLeft = false;
                 }
 
@@ -134,13 +160,12 @@ public class DrawLadderAnimation {
 
             } else if (list.get(lineNumber-position).getNextLocation()[heightNumber] == heightNumber) {
 
-                moveX = -15f;
 
                 animationType = DRAW_ANIMATION_X;
                 isLeft = true;
 
                 lineNumber--;
-                setLadderDistanceX();
+                setReachPointX();
 
 
 
@@ -148,84 +173,89 @@ public class DrawLadderAnimation {
 
                 if (list.get(lineNumber - position).getNextLocation()[heightNumber - 2] == heightNumber) {
 
-                    moveX = -9.9f;
-                    moveY = -10.2f;
 
                     heightNumber -= 3;
                     animationType = DRAW_ANIMATION_DIAGONAL;
                     isTop = true;
                     lineNumber--;
-                    setLadderDistanceX();
+                    setReachPointX();
                 }
             }
             heightNumber++;
+            setReachPointY();
 
 
         } else {
-            stopY += 20;
+            stopY += bottomMoveY;
         }
 
-        if (stopY > 1650) {
+        if (stopY > endPoint) {
+            stopY = endPoint+1;
             drawList.add(new DrawAnimationLocation(startX, startY, stopX, stopY));
             animationType = NONE;
         }
 
     }
 
-    private void setLadderDistanceX() {
-        ladderDistanceX = 135+(lineNumber*252);
+    private void setReachPointX() {
+        reachPointX = xDistance+(lineNumber*ladderXDistance);
+    }
+
+    private void setReachPointY() {
+        reachPointY = yDistance+(heightNumber*ladderYDistance);
     }
 
 
     private void animationLocationDiagonal(){
 
         if(isTop){
-            if (stopY < 355+(heightNumber*130)) {
+            if (stopY < reachPointY) {
                 animationType = DRAW_ANIMATION_Y;
                 drawList.add(new DrawAnimationLocation(startX, startY, stopX, stopY));
 
-                startX = ladderDistanceX;
-                stopX = ladderDistanceX;
-                startY = 350 + (130*heightNumber);
-                stopY = 350 + (130*heightNumber);
+                startX = reachPointX;
+                stopX = reachPointX;
+                startY = reachPointY;
+                stopY = reachPointY;
 
                 startY -= 5;
                 heightNumber++;
-
+                setReachPointY();
 
             } else {
-                stopX += moveX;
-                stopY += moveY;
+                stopX += topDiagonalMoveX;
+                stopY += topDiagonalMoveY;
             }
         }else{
-            if (stopY > 355+(heightNumber*130)) {
+            if (stopY > reachPointY) {
                 animationType = DRAW_ANIMATION_Y;
                 drawList.add(new DrawAnimationLocation(startX, startY, stopX, stopY));
-                setLadderDistanceX();
-                startX = ladderDistanceX;
-                stopX = ladderDistanceX;
-                startY = 350 + (130*heightNumber);
-                stopY = 350 + (130*heightNumber);
+                setReachPointX();
+                startX = reachPointX;
+                stopX = reachPointX;
+                startY = reachPointY;
+                stopY = reachPointY;
 
                 startY -= 20;
                 heightNumber++;
+                setReachPointY();
 
 
 
             } else {
-                stopX += moveX;
-                stopY += moveY;
+                stopX += bottomDiagonalMoveX;
+                stopY += bottomDiagonalMoveY;
             }
         }
 
 
     }
 
-    public int getStartX() {
+    public float getStartX() {
         return startX;
     }
 
-    public int getStartY() {
+    public float getStartY() {
         return startY;
     }
 

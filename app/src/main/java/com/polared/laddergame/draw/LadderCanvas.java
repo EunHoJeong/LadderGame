@@ -25,7 +25,10 @@ public class LadderCanvas extends View {
     public static final int ANIMATION = 2;
     public static final int LADDER_RESULT = 3;
 
-
+    private int xDistance;
+    private int yDistance;
+    private int ladderXDistance;
+    private int ladderYDistance;
     private int type = 0;
 
     private int lineCount;
@@ -45,6 +48,7 @@ public class LadderCanvas extends View {
 
     private Random random = new Random();
 
+    private ArrayList<LayoutLocation> locationList = new ArrayList<>();
     private ArrayList<LadderLine> list;
     private ArrayList<DrawAnimationLocation> drawList;
     private ArrayList<DrawLadderAnimation> drawLadderAnimationsList;
@@ -84,15 +88,19 @@ public class LadderCanvas extends View {
             if(ladderResult.get(position) == null){
                 drawList = new ArrayList<>();
                 drawLadderAnimationsList = new ArrayList<>();
-                drawLadderAnimationsList.add(new DrawLadderAnimation(lineNum, participantNumber, list, animationLinePaint));
-
-
+                drawLadderAnimationsList.add(new DrawLadderAnimation(lineNum, participantNumber, list, animationLinePaint
+                        , xDistance, yDistance, ladderXDistance, ladderYDistance, locationList.get(position).getStartX()
+                        , locationList.get(position).getStartY(), locationList.get(position).getStopY()));
             } else {
                 drawList = ladderResult.get(position);
                 this.type = LADDER_RESULT;
             }
-
-
+        } else if (type == START) {
+            xDistance = (int)(locationList.get(0).getStartX());
+            yDistance = (int)(locationList.get(0).getStartY());
+            ladderXDistance = (int)(locationList.get(1).getStartX() - locationList.get(0).getStartX());
+            ladderYDistance = (int)(locationList.get(0).getStopY() - locationList.get(0).getStartY());
+            ladderYDistance /= 10;
         }
 
         invalidate();
@@ -105,9 +113,21 @@ public class LadderCanvas extends View {
             Paint paint = new Paint();
             paint.setStrokeWidth(20);
             paint.setColor(LGColors.getColor(i));
-            drawLadderAnimationsList.add(new DrawLadderAnimation(i, i, list, paint));
+            drawLadderAnimationsList.add(new DrawLadderAnimation(i, i, list, paint, xDistance, yDistance
+                    , ladderXDistance, ladderYDistance, locationList.get(i).getStartX()
+                    , locationList.get(i).getStartY(), locationList.get(i).getStopY()));
         }
 
+        invalidate();
+    }
+
+    public void addLocation(LayoutLocation location) {
+        locationList.add(location);
+        invalidate();
+    }
+
+    public void removeLocation(int position) {
+        locationList.remove(position);
         invalidate();
     }
 
@@ -115,8 +135,11 @@ public class LadderCanvas extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        for (int i = 0; i < lineCount; i++) {
-            canvas.drawLine(135+(i*252), 350, 135+(i*252), 1650, ladderLinePaint);
+        for (int i = 0; i < locationList.size(); i++) {
+            canvas.drawLine(locationList.get(i).getStartX()
+                    , locationList.get(i).getStartY()
+                    , locationList.get(i).getStopX()
+                    , locationList.get(i).getStopY(), ladderLinePaint);
         }
 
         switch (type) {
@@ -161,7 +184,7 @@ public class LadderCanvas extends View {
         for (int i = 0; i < drawLadderAnimationsList.size(); i++) {
 
 
-            if (drawLadderAnimationsList.get(i).getStopY() > 1650
+            if (drawLadderAnimationsList.get(i).getStopY() > locationList.get(i).getStopY()
             && !drawLadderAnimationsList.get(i).isEnd()){
 
                 drawLadderAnimationsList.get(i).setEnd(true);
@@ -170,6 +193,7 @@ public class LadderCanvas extends View {
                 ladderResult.put(drawLadderAnimationsList.get(i).getParticipantNumber(), drawLadderAnimationsList.get(i).getDrawList());
                 ladderViewModel.ladderGameEnd(drawLadderAnimationsList.get(i).getParticipantNumber());
                 drawLadderAnimationsList.remove(i);
+                i--;
             }
         }
 
@@ -196,15 +220,16 @@ public class LadderCanvas extends View {
         for (int i = 0; i < lineCount -1; i++) {
             for(int j = 0; j < 10; j++){
                 int heightLine = list.get(i).location[j];
+
                 if(heightLine == 0){
                     continue;
                 }
                 int nextLine = list.get(i).nextLocation[j];
 
-                int startX = 135+(i*252);
-                int startY = 350+(j*130);
-                int stopX = 135+((i+1)*252);
-                int stopY = 350+(nextLine*130);
+                int startX = xDistance+(i*ladderXDistance);
+                int startY = yDistance+(j*ladderYDistance);
+                int stopX = xDistance+((i+1)*ladderXDistance);
+                int stopY = yDistance+(nextLine*ladderYDistance);
 
                 canvas.drawLine(startX, startY, stopX, stopY, ladderLinePaint);
 
