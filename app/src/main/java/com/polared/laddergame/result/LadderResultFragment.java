@@ -1,4 +1,4 @@
-package com.polared.laddergame;
+package com.polared.laddergame.result;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -14,7 +14,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.polared.laddergame.R;
 import com.polared.laddergame.main.MainFragment;
+import com.polared.laddergame.result.LadderResultAdapter;
+import com.polared.laddergame.result.LadderResultData;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -49,15 +52,8 @@ public class LadderResultFragment extends Fragment {
 
         ladderResultAdapter = new LadderResultAdapter(resultList);
 
-
-
         resultRecyclerView.setLayoutManager(new GridLayoutManager(getContext(),3));
         resultRecyclerView.setAdapter(ladderResultAdapter);
-
-
-
-
-
 
         return view;
     }
@@ -65,31 +61,29 @@ public class LadderResultFragment extends Fragment {
     private void initButton() {
 
         btnPreviousScreen.setOnClickListener(v -> {
-            Bundle bundle = new Bundle();
-            bundle.putString("reload", "reload");
-            MainFragment mainFragment = (MainFragment) getParentFragmentManager().findFragmentByTag("main");
-            if (mainFragment != null) {
-                mainFragment.setArguments(bundle);
-            }
-            replaceFragment(mainFragment);
+            replaceFragment("reload");
         });
 
         btnReStart.setOnClickListener(v -> {
-            Bundle bundle = new Bundle();
-            bundle.putString("clear", "clear");
-            MainFragment mainFragment = (MainFragment) getParentFragmentManager().findFragmentByTag("main");
-            if (mainFragment != null) {
-                mainFragment.setArguments(bundle);
-            }
-            replaceFragment(mainFragment);
+            replaceFragment("restart");
         });
     }
 
-    private void replaceFragment(Fragment fragment){
+    private void replaceFragment(String data){
 
-        FragmentTransaction ft = getParentFragmentManager().beginTransaction();
-        ft.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
-        ft.replace(R.id.main_frameLayout, fragment);
-        ft.commit();
+        Bundle bundle = new Bundle();
+        bundle.putString(data, data);
+        MainFragment mainFragment = (MainFragment) getParentFragmentManager().findFragmentByTag("main");
+
+        if (mainFragment != null) {
+            mainFragment.setArguments(bundle);
+
+            FragmentTransaction ft = getParentFragmentManager().beginTransaction();
+            ft.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
+            ft.replace(R.id.main_frameLayout, mainFragment);
+            ft.commit();
+        }
+
+
     }
 }

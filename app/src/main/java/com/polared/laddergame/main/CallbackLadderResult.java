@@ -1,4 +1,4 @@
-package com.polared.laddergame;
+package com.polared.laddergame.main;
 
 public interface CallbackLadderResult {
     void relayLadderResult(int resultNum, int participantNum);

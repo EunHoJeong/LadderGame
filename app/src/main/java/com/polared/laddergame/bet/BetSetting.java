@@ -1,4 +1,4 @@
-package com.polared.laddergame;
+package com.polared.laddergame.bet;
 
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
@@ -19,6 +19,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.polared.laddergame.base.BaseActivity;
+import com.polared.laddergame.R;
+import com.polared.laddergame.utils.TransactionJson;
 
 public class BetSetting extends BaseActivity {
     private static final int RESULT_BET = 200;
@@ -74,7 +77,7 @@ public class BetSetting extends BaseActivity {
         jsonBetNames = getIntent().getStringExtra("jsonBetNames");
 
         if(jsonBetNames != null){
-            jsonFromStringArray();
+            betNames = TransactionJson.jsonFromStringArray(jsonBetNames);
             setEdtBetName();
         }
 
@@ -84,17 +87,6 @@ public class BetSetting extends BaseActivity {
         ((EditText)gridLayout.getChildAt(participantNum -1).findViewById(R.id.edtBetName))
                 .setImeOptions(EditorInfo.IME_ACTION_DONE);
     }
-
-    private void jsonFromStringArray() {
-        Gson gson = new Gson();
-        betNames = gson.fromJson(jsonBetNames, String[].class);
-    }
-
-    private void stringArrayFromJson() {
-        Gson gson = new Gson();
-        jsonBetNames = gson.toJson(betNames);
-    }
-
 
 
     private void createView(int position) {
@@ -167,7 +159,7 @@ public class BetSetting extends BaseActivity {
         btnInputComplete.setOnClickListener(v -> {
 
             if(checkData()){
-                stringArrayFromJson();
+                jsonBetNames = TransactionJson.stringArrayFromJson(betNames);
 
                 Intent intent = new Intent();
                 intent.putExtra("jsonBetNames", jsonBetNames);

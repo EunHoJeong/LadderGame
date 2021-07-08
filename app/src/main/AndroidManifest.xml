@@ -9,9 +9,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.LadderGame">
-        <activity android:name=".BaseActivity"></activity>
-        <activity android:name=".BetSetting" />
-        <activity android:name=".ParticipantSetting" />
+        <activity android:name=".base.BaseActivity"></activity>
+        <activity android:name=".bet.BetSetting" />
+        <activity android:name=".participant.ParticipantSetting" />
         <activity android:name=".main.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

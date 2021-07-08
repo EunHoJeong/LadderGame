@@ -1,10 +1,9 @@
 package com.polared.laddergame;
 
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
 
-import java.util.HashMap;
+import com.polared.laddergame.main.CallbackLadderResult;
 
 public class LadderViewModel extends ViewModel {
     private MutableLiveData<Integer> liveData;

@@ -1,4 +1,4 @@
-package com.polared.laddergame;
+package com.polared.laddergame.bet;
 
 import android.util.Log;
 import android.widget.EditText;

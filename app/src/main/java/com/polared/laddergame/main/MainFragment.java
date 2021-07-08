@@ -6,13 +6,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.os.SystemClock;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -28,17 +25,17 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 
 import com.google.gson.Gson;
-import com.polared.laddergame.BetData;
-import com.polared.laddergame.BetSetting;
-import com.polared.laddergame.CallbackLadderResult;
-import com.polared.laddergame.LGColors;
+import com.polared.laddergame.bet.BetData;
+import com.polared.laddergame.bet.BetSetting;
+import com.polared.laddergame.utils.LGColors;
 import com.polared.laddergame.draw.LadderCanvas;
-import com.polared.laddergame.LadderResultData;
-import com.polared.laddergame.LadderResultFragment;
+import com.polared.laddergame.result.LadderResultData;
+import com.polared.laddergame.result.LadderResultFragment;
 import com.polared.laddergame.LadderViewModel;
-import com.polared.laddergame.ParticipantSetting;
+import com.polared.laddergame.participant.ParticipantSetting;
 import com.polared.laddergame.R;
 import com.polared.laddergame.draw.LayoutLocation;
+import com.polared.laddergame.utils.TransactionJson;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -117,7 +114,7 @@ public class MainFragment extends Fragment {
 
                         String jsonParticipantNames = result.getData().getStringExtra("jsonParticipantNames");
 
-                        participantNames = jsonFromStringArray(jsonParticipantNames);
+                        participantNames = TransactionJson.jsonFromStringArray(jsonParticipantNames);
                         betNames = new String[participantNum];
 
                         setParticipantView(beforeNumber);
@@ -139,7 +136,7 @@ public class MainFragment extends Fragment {
 
                         String jsonBetNames = result.getData().getStringExtra("jsonBetNames");
                         typePosition = result.getData().getIntExtra("typePosition", 0);
-                        betNames = jsonFromStringArray(jsonBetNames);
+                        betNames = TransactionJson.jsonFromStringArray(jsonBetNames);
 
                         setBetName();
                     }
@@ -312,12 +309,14 @@ public class MainFragment extends Fragment {
     }
 
     private void findViewByIdFunc(View view) {
-        ladderLayout = view.findViewById(R.id.ladderLayout);
-        canvasContainer = view.findViewById(R.id.relativeLayout);
-        unClicked = view.findViewById(R.id.unClicked);
-        btnParticipantInput = view.findViewById(R.id.btnParticipantInput);
-        btnModifyBet = view.findViewById(R.id.btnModifyBet);
-        btnStart = view.findViewById(R.id.btnStart);
+        ladderLayout = (LinearLayout) view.findViewById(R.id.ladderLayout);
+
+        canvasContainer = (RelativeLayout) view.findViewById(R.id.relativeLayout);
+        unClicked = (RelativeLayout) view.findViewById(R.id.unClicked);
+
+        btnParticipantInput = (Button) view.findViewById(R.id.btnParticipantInput);
+        btnModifyBet = (Button) view.findViewById(R.id.btnModifyBet);
+        btnStart = (Button) view.findViewById(R.id.btnStart);
     }
 
     private void createView(int position) {
@@ -330,23 +329,24 @@ public class MainFragment extends Fragment {
         String number = String.valueOf(position+1);
         String participantName = getString(R.string.participant)+number;
         String betName = getString(R.string.bet)+number;
+
         participantNames[position] = participantName;
         betNames[position] = betName;
 
-        tvNumber.setText(number);
+
         tvNumber.setOnClickListener(v -> {
             tvParticipantName.setTextColor(LGColors.getColor(position));
             ladderCanvas.init(LadderCanvas.ANIMATION, position);
             unClicked.setClickable(true);
         });
 
+        tvNumber.setText(number);
         tvNumber.setClickable(false);
-
+        tvNumber.setBackgroundColor(LGColors.getColor(position));
 
         tvParticipantName.setText(participantName);
-        tvBetName.setText(betName);
 
-        tvNumber.setBackgroundColor(LGColors.getColor(position));
+        tvBetName.setText(betName);
 
         ladderLayout.addView(addView);
 
@@ -395,35 +395,9 @@ public class MainFragment extends Fragment {
 
         registerBtnModifyBet();
 
+        registerBtnStart();
 
-        btnStart.setOnClickListener(v -> {
-            setTvNumberClickable(true);
-            isStart = true;
-
-            ladderCanvas.init(LadderCanvas.START, 0);
-
-            btnStart.setVisibility(View.INVISIBLE);
-            btnModifyBet.setText(getString(R.string.do_it_again));
-            btnParticipantInput.setText(getString(R.string.overall_results));
-            shuffleBetName();
-
-        });
     }
-
-
-    private void shuffleBetName() {
-        Random random = new Random();
-
-        for (int i = 0; i < betNames.length; i++) {
-            int shuffle = random.nextInt(betNames.length);
-            String temp = betNames[i];
-            betNames[i] = betNames[shuffle];
-            betNames[shuffle] = temp;
-        }
-
-        setBetName();
-    }
-
 
     private void registerBtnModifyBet() {
         btnModifyBet.setOnClickListener(v -> {
@@ -437,7 +411,7 @@ public class MainFragment extends Fragment {
                 intent.putExtra("participantNumber", participantNum);
 
                 if(betNames != null){
-                    String jsonBetNames = stringArrayFromJson(betNames);
+                    String jsonBetNames = TransactionJson.stringArrayFromJson(betNames);
                     intent.putExtra("jsonBetNames", jsonBetNames);
                     intent.putExtra("typePosition", typePosition);
                 }
@@ -466,7 +440,7 @@ public class MainFragment extends Fragment {
                 intent.putExtra("participantNumber", participantNum);
 
                 if(participantNames != null){
-                    String jsonParticipantNames = stringArrayFromJson(participantNames);
+                    String jsonParticipantNames = TransactionJson.stringArrayFromJson(participantNames);
                     intent.putExtra("jsonParticipantNames", jsonParticipantNames);
                 }
 
@@ -474,6 +448,35 @@ public class MainFragment extends Fragment {
             }
 
         });
+    }
+
+    private void registerBtnStart() {
+        btnStart.setOnClickListener(v -> {
+            setTvNumberClickable(true);
+            isStart = true;
+
+            ladderCanvas.init(LadderCanvas.START, 0);
+
+            btnStart.setVisibility(View.INVISIBLE);
+            btnModifyBet.setText(getString(R.string.do_it_again));
+            btnParticipantInput.setText(getString(R.string.overall_results));
+            shuffleBetName();
+
+        });
+    }
+
+
+    private void shuffleBetName() {
+        Random random = new Random();
+
+        for (int i = 0; i < betNames.length; i++) {
+            int shuffle = random.nextInt(betNames.length);
+            String temp = betNames[i];
+            betNames[i] = betNames[shuffle];
+            betNames[shuffle] = temp;
+        }
+
+        setBetName();
     }
 
     private void allResult() {
@@ -490,17 +493,6 @@ public class MainFragment extends Fragment {
         }
     }
 
-
-    private String stringArrayFromJson(String[] arrayData){
-        Gson gson = new Gson();
-        return gson.toJson(arrayData);
-
-    }
-
-    private String[] jsonFromStringArray(String jsonData){
-        Gson gson = new Gson();
-        return gson.fromJson(jsonData, String[].class);
-    }
 
     private void setTvNumberClickable(boolean isClick) {
         for (int i = 0; i < participantNum; i++) {

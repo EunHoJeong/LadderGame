@@ -1,13 +1,12 @@
 package com.polared.laddergame.main;
 
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import com.polared.laddergame.BaseActivity;
-import com.polared.laddergame.LGColors;
+import com.polared.laddergame.base.BaseActivity;
+import com.polared.laddergame.utils.LGColors;
 import com.polared.laddergame.R;
 
 public class MainActivity extends BaseActivity {

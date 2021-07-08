@@ -5,15 +5,11 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
-import android.widget.HorizontalScrollView;
 
 import androidx.annotation.Nullable;
 
-import com.polared.laddergame.LGColors;
+import com.polared.laddergame.utils.LGColors;
 import com.polared.laddergame.LadderViewModel;
 
 import java.util.ArrayList;
@@ -274,7 +270,7 @@ public class LadderCanvas extends View {
                     continue;
                 }
 
-                if(random.nextInt(5) < 1){
+                if(random.nextInt(5) < 3){
                     ladder[j] = 1;
                     ladderSize = obliqueLine(j);
                     nextLadder[j] = ladderSize;
@@ -288,10 +284,10 @@ public class LadderCanvas extends View {
             }
 
 
-            checkLineNum(i-position, ladderSize);
 
             ladderLine = new LadderLine(ladder, nextLadder);
             list.add(ladderLine);
+            checkLineNum(i-position, ladderSize);
             ladder = new int[10];
             nextLadder = new int[10];
 
@@ -302,9 +298,6 @@ public class LadderCanvas extends View {
     }
 
     private void checkLineNum(int position, int ladderSize){
-        if(list.size() == 0){
-            return;
-        }
 
         int count = 0;
 

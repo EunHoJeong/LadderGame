@@ -1,8 +1,10 @@
-package com.polared.laddergame;
+package com.polared.laddergame.utils;
 
 import android.content.Context;
 
 import androidx.core.content.ContextCompat;
+
+import com.polared.laddergame.R;
 
 public class LGColors {
     private static int[] colors;

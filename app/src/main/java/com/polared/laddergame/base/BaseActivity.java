@@ -1,9 +1,11 @@
-package com.polared.laddergame;
+package com.polared.laddergame.base;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
-import android.util.Log;
+
+import com.polared.laddergame.R;
+import com.polared.laddergame.bet.BetData;
 
 public class BaseActivity extends AppCompatActivity {
     public BetData betData;

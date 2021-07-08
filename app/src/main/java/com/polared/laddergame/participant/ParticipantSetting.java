@@ -1,34 +1,27 @@
-package com.polared.laddergame;
+package com.polared.laddergame.participant;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
 
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.text.Selection;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
-import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.polared.laddergame.utils.LGColors;
+import com.polared.laddergame.R;
+import com.polared.laddergame.utils.TransactionJson;
 
 public class ParticipantSetting extends AppCompatActivity {
     private static final int RESULT_PARTICIPANT = 100;
@@ -78,7 +71,7 @@ public class ParticipantSetting extends AppCompatActivity {
         jsonParticipantNames = getIntent().getStringExtra("jsonParticipantNames");
 
         if(jsonParticipantNames != null){
-            jsonFromStringArray();
+            participantNames = TransactionJson.jsonFromStringArray(jsonParticipantNames);
             setEdtParticipantName();
         }
 
@@ -109,11 +102,6 @@ public class ParticipantSetting extends AppCompatActivity {
                 .setImeOptions(EditorInfo.IME_ACTION_DONE);
     }
 
-
-    private void jsonFromStringArray() {
-        Gson gson = new Gson();
-        participantNames = gson.fromJson(jsonParticipantNames, String[].class);
-    }
 
     private void stringArrayFromJson(){
         Gson gson = new Gson();
@@ -202,7 +190,7 @@ public class ParticipantSetting extends AppCompatActivity {
 
             if(checkData()){
 
-                stringArrayFromJson();
+                jsonParticipantNames = TransactionJson.stringArrayFromJson(participantNames);
 
                 Intent intent = new Intent();
                 intent.putExtra("jsonParticipantNames", jsonParticipantNames);
