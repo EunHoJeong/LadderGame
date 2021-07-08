@@ -73,10 +73,10 @@ public class DrawLadderAnimation {
         leftMoveX = -ladderXDistance/20;
         rightMoveX = ladderXDistance/20;
         bottomMoveY = ladderYDistance/10;
-        topDiagonalMoveX = -ladderXDistance/40;
-        topDiagonalMoveY = -ladderYDistance/20;
-        bottomDiagonalMoveX = ladderXDistance/40;
-        bottomDiagonalMoveY = ladderYDistance/20;
+        topDiagonalMoveX = -ladderXDistance/20;
+        topDiagonalMoveY = -ladderYDistance/10;
+        bottomDiagonalMoveX = ladderXDistance/20;
+        bottomDiagonalMoveY = ladderYDistance/10;
     }
 
 

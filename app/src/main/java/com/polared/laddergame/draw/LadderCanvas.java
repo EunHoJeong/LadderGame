@@ -136,6 +136,7 @@ public class LadderCanvas extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+
         for (int i = 0; i < locationList.size(); i++) {
             canvas.drawLine(locationList.get(i).getStartX()
                     , locationList.get(i).getStartY()
@@ -158,11 +159,18 @@ public class LadderCanvas extends View {
                 ladderViewModel.setClickable();
                 break;
         }
-
     }
 
     private void drawAnimation(Canvas canvas) {
         for (int i = 0; i < drawLadderAnimationsList.size(); i++) {
+
+            drawLadderAnimationsList.get(i).drawAnimation();
+
+            canvas.drawLine(drawLadderAnimationsList.get(i).getStartX()
+                    , drawLadderAnimationsList.get(i).getStartY()
+                    , drawLadderAnimationsList.get(i).getStopX()
+                    , drawLadderAnimationsList.get(i).getStopY()
+                    ,drawLadderAnimationsList.get(i).getAnimationLinePaint());
 
             for(int j = 0; j < drawLadderAnimationsList.get(i).getDrawList().size(); j++){
                 canvas.drawLine(drawLadderAnimationsList.get(i).getDrawList().get(j).getStartX()
@@ -172,13 +180,7 @@ public class LadderCanvas extends View {
                         , drawLadderAnimationsList.get(i).getAnimationLinePaint());
             }
 
-            drawLadderAnimationsList.get(i).drawAnimation();
 
-            canvas.drawLine(drawLadderAnimationsList.get(i).getStartX()
-                    , drawLadderAnimationsList.get(i).getStartY()
-                    , drawLadderAnimationsList.get(i).getStopX()
-                    , drawLadderAnimationsList.get(i).getStopY()
-                    ,drawLadderAnimationsList.get(i).getAnimationLinePaint());
         }
 
 
